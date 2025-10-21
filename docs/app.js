@@ -51,6 +51,42 @@ function renderDept(id){
 function renderEntry(id){
   const e = DB.entries.find(x=>x.id===id);
   if(!e){ V.innerHTML = '<div class="card" style="margin:16px">No encontrado</div>'; return; }
+
+  // Galería de imágenes (si existen)
+  const imgs = (e.imagenes && e.imagenes.length)
+    ? `<div class="gallery">${e.imagenes.map(src=>`<img src="${src}" loading="lazy" alt="captura">`).join('')}</div>`
+    : '';
+
+  // Botones de herramientas (si existen)
+  const tools = (e.herramientas && e.herramientas.length)
+    ? `<div class="tools">${e.herramientas.map(t=>`<a class="tool-btn" href="${t.url}" target="_blank" rel="noopener">${t.nombre}</a>`).join('')}</div>`
+    : '';
+
+  V.innerHTML = `
+    <div class="card" style="margin:16px">
+      <a class="btn" href="#dept/${e.departamento_id}">← Volver</a>
+      <h3 style="margin:12px 0 6px 0">${e.problema}</h3>
+      <small>${e.departamento} • ${e.nivel} • ${e.riesgo} • ${e.tiempo_min} min</small>
+
+      ${imgs}
+
+      <p style="margin-top:8px"><b>Causa probable:</b> ${e.causa}</p>
+      <div><b>Solución directa:</b><pre>${e.solucion.join('\\n')}</pre></div>
+      ${e.verificacion?.length ? `<div><b>Verificación:</b><pre>${e.verificacion.join('\\n')}</pre></div>`:''}
+      ${e.comandos?.length ? `<div><b>Comandos:</b><pre>${e.comandos.join('\\n')}</pre></div>`:''}
+
+      ${tools ? `<div style="margin-top:6px"><b>Herramientas gratuitas y seguras:</b>${tools}</div>` : ''}
+
+      ${e.refs?.length ? `<div style="margin-top:6px"><b>Referencias:</b><ul>${e.refs.map(r=>`<li><a class="btn" href="${r.url}" target="_blank" rel="noopener">${r.url}</a></li>`).join('')}</ul></div>`:''}
+
+      <div style="margin-top:10px">
+        <button class="btn" onclick="copyCommands(${JSON.stringify(e.solucion)})">Copiar pasos</button>
+        ${e.comandos?.length?`<button class="btn" onclick='copyCommands(${JSON.stringify(e.comandos)})'>Copiar comandos</button>`:''}
+      </div>
+    </div>
+  `;
+}
+
   V.innerHTML = `
     <div class="card" style="margin:16px">
       <a class="btn" href="#dept/${e.departamento_id}">← Volver</a>
