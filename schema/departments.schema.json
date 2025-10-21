@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Departments",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "nombre"
+    ],
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "nombre": {
+        "type": "string"
+      }
+    }
+  }
+}

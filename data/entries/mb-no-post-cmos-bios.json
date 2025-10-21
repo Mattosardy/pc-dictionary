@@ -1,0 +1,25 @@
+{
+  "id": "mb-no-post-cmos-bios",
+  "departamento_id": "motherboard",
+  "departamento": "Placa Madre / Chipset",
+  "problema": "No da video / no POST",
+  "causa": "CMOS corrupto o BIOS dañada",
+  "solucion": [
+    "Cortar corriente y retirar pila CMOS 5 min",
+    "Presionar power 10 s",
+    "Arrancar con 1 módulo RAM",
+    "Actualizar BIOS por USB Flashback/Q-Flash"
+  ],
+  "verificacion": [
+    "POST y códigos/LED normales"
+  ],
+  "riesgo": "MEDIO",
+  "nivel": "Intermedio",
+  "tiempo_min": 15,
+  "tags": [
+    "bios",
+    "cmos",
+    "post",
+    "motherboard"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ram-xmp-inestable",
+  "departamento_id": "ram",
+  "departamento": "Memoria RAM",
+  "problema": "Pantallazos azules aleatorios (XMP/EXPO inestable)",
+  "causa": "Perfil de overclock automático inestable o mezcla de módulos",
+  "solucion": [
+    "Entrar a BIOS/UEFI",
+    "Desactivar XMP/EXPO",
+    "Si estabiliza: bajar frecuencia -200 MHz o subir DRAM Voltage +0.05 V",
+    "Probar MemTest86 mínimo 4 pasadas"
+  ],
+  "verificacion": [
+    "0 errores en MemTest86",
+    "Sistema estable 1h de uso intensivo"
+  ],
+  "riesgo": "MEDIO",
+  "nivel": "Intermedio",
+  "tiempo_min": 30,
+  "tags": [
+    "ram",
+    "xmp",
+    "expo",
+    "bsod",
+    "memtest"
+  ]
+}

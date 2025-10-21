@@ -1,0 +1,48 @@
+{
+  "id": "almacenamiento-diskpart-clean-gpt",
+  "departamento_id": "almacenamiento",
+  "departamento": "Almacenamiento",
+  "problema": "Disco no aparece / tabla corrupta",
+  "causa": "Partición dañada o MBR/GPT inconsistente",
+  "solucion": [
+    "Abrir CMD como administrador",
+    "diskpart",
+    "list disk",
+    "select disk X  // REEMPLAZAR X",
+    "clean          // BORRA TODO",
+    "convert gpt",
+    "create partition primary",
+    "format fs=ntfs quick",
+    "assign"
+  ],
+  "verificacion": [
+    "Disco visible con letra en 'Este equipo'",
+    "Sin errores relacionados a disk en Visor de eventos"
+  ],
+  "riesgo": "ALTO",
+  "nivel": "Intermedio",
+  "tiempo_min": 5,
+  "tags": [
+    "diskpart",
+    "gpt",
+    "m.2",
+    "ssd",
+    "particiones"
+  ],
+  "refs": [
+    {
+      "tipo": "doc",
+      "url": "https://aka.ms/diskpart-docs"
+    }
+  ],
+  "comandos": [
+    "diskpart",
+    "list disk",
+    "select disk X",
+    "clean",
+    "convert gpt",
+    "create partition primary",
+    "format fs=ntfs quick",
+    "assign"
+  ]
+}

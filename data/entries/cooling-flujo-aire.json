@@ -1,0 +1,24 @@
+{
+  "id": "cooling-flujo-aire",
+  "departamento_id": "cooling",
+  "departamento": "Refrigeración",
+  "problema": "Ruido/temperaturas altas por flujo invertido",
+  "causa": "Ventiladores mal orientados o polvo",
+  "solucion": [
+    "Frontales IN, traseros/superiores OUT",
+    "Limpiar filtros y ventiladores",
+    "Reaplicar pasta si >2 años"
+  ],
+  "verificacion": [
+    "Baja ≥10 °C vs. medición inicial"
+  ],
+  "riesgo": "BAJO",
+  "nivel": "Básico",
+  "tiempo_min": 20,
+  "tags": [
+    "cooling",
+    "flujo",
+    "ventiladores",
+    "polvo"
+  ]
+}

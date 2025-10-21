@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diccionario de Reparación — TelecomT3</title>
+  <style>
+    body{font-family: system-ui, sans-serif; background:#0b0b0b; color:#e6fff0; margin:0; min-height:100vh;}
+    header{display:flex; align-items:center; gap:12px; padding:16px; background:#061018; border-bottom:1px solid #0f7a44;}
+    .logo{width:40px;height:40px;background:#0b6b3a;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;padding:16px;}
+    .card{background:#061018;border:1px solid #113; border-radius:12px; padding:16px;}
+    .btn{display:inline-block;background:#123;border:1px solid #0f7a44;color:#cfe;padding:10px 12px;border-radius:8px;cursor:pointer;text-decoration:none}
+    .searchbar{display:flex;gap:10px;padding:0 16px 16px 16px}
+    #q{flex:1;padding:10px;border-radius:8px;border:1px solid #214;background:#041016;color:#cfe}
+    .list{padding:0 16px 16px 16px}
+    .entry{background:#050c12;border:1px solid #0e1b29;border-radius:10px;padding:12px;margin-bottom:10px}
+    pre{background:#000;padding:10px;border-radius:8px;overflow:auto}
+    small{color:#9ecbb0}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">T3</div>
+    <div>
+      <div style="font-size:18px;font-weight:700">Diccionario de Reparación — TelecomT3</div>
+      <small>Soluciones reales, sin humo. Offline-ready.</small>
+    </div>
+  </header>
+
+  <div class="searchbar">
+    <input id="q" placeholder="Buscar (ej: diskpart, XMP, drivers, DNS)">
+    <a id="btn-home" class="btn">Portada</a>
+  </div>
+
+  <div id="view"></div>
+
+  <script src="./app.js"></script>
+  <script src="./data.bundle.js"></script>
+</body>
+</html>

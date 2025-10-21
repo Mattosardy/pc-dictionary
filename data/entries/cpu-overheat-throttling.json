@@ -1,0 +1,26 @@
+{
+  "id": "cpu-overheat-throttling",
+  "departamento_id": "cpu",
+  "departamento": "CPU",
+  "problema": "Temperaturas >95°C y throttling",
+  "causa": "Pasta térmica seca o disipador mal ajustado",
+  "solucion": [
+    "Retirar disipador y limpiar con isopropílico",
+    "Aplicar MX-4/NT-H1 (tamaño lenteja)",
+    "Asegurar presión uniforme",
+    "Verificar RPM >1200 en BIOS"
+  ],
+  "verificacion": [
+    "Idle <45 °C",
+    "Carga sostenida <85 °C sin throttling (Cinebench)"
+  ],
+  "riesgo": "MEDIO",
+  "nivel": "Básico",
+  "tiempo_min": 25,
+  "tags": [
+    "cpu",
+    "temperatura",
+    "throttling",
+    "pasta termica"
+  ]
+}

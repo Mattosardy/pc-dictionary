@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Entry",
+  "type": "object",
+  "required": [
+    "id",
+    "departamento_id",
+    "departamento",
+    "problema",
+    "causa",
+    "solucion",
+    "riesgo",
+    "nivel",
+    "tiempo_min",
+    "tags"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "departamento_id": {
+      "type": "string"
+    },
+    "departamento": {
+      "type": "string"
+    },
+    "problema": {
+      "type": "string"
+    },
+    "causa": {
+      "type": "string"
+    },
+    "solucion": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verificacion": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "comandos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "riesgo": {
+      "type": "string",
+      "enum": [
+        "BAJO",
+        "MEDIO",
+        "ALTO"
+      ]
+    },
+    "nivel": {
+      "type": "string",
+      "enum": [
+        "Básico",
+        "Intermedio",
+        "Avanzado"
+      ]
+    },
+    "tiempo_min": {
+      "type": "number"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "tipo": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

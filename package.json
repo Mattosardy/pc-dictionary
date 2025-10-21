@@ -1,0 +1,12 @@
+{
+  "name": "pc-dictionary",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'sirve directo: abre public/index.html'",
+    "build:usb": "echo 'USB listo: usa public/index.html + data.bundle.js'",
+    "validate": "node scripts/validate.mjs",
+    "build": "node scripts/build.mjs",
+    "embed": "node scripts/embed.mjs"
+  }
+}

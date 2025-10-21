@@ -1,0 +1,29 @@
+{
+  "id": "network-stack-reset-dns",
+  "departamento_id": "network",
+  "departamento": "Red y Conectividad",
+  "problema": "Sin internet con adaptador activo",
+  "causa": "Winsock/TCP-IP dañado o DNS caído",
+  "solucion": [
+    "CMD admin:",
+    "netsh winsock reset",
+    "netsh int ip reset",
+    "ipconfig /flushdns",
+    "ipconfig /release",
+    "ipconfig /renew",
+    "Reiniciar"
+  ],
+  "verificacion": [
+    "ping 8.8.8.8 OK",
+    "ping google.com OK"
+  ],
+  "riesgo": "BAJO",
+  "nivel": "Básico",
+  "tiempo_min": 5,
+  "tags": [
+    "dns",
+    "winsock",
+    "ipconfig",
+    "red"
+  ]
+}

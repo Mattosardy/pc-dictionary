@@ -1,0 +1,26 @@
+{
+  "id": "gpu-ddu-driver-clean",
+  "departamento_id": "gpu",
+  "departamento": "GPU",
+  "problema": "Pantallazos negros/artefactos por drivers corruptos",
+  "causa": "Instalaciones de driver superpuestas o dañadas",
+  "solucion": [
+    "Descargar DDU",
+    "Reiniciar en Modo Seguro",
+    "Ejecutar DDU y limpiar driver",
+    "Instalar driver WHQL desde sitio oficial"
+  ],
+  "verificacion": [
+    "Bench sin cierres (Heaven/3DMark)",
+    "Temp <80 °C en carga"
+  ],
+  "riesgo": "BAJO",
+  "nivel": "Básico",
+  "tiempo_min": 20,
+  "tags": [
+    "gpu",
+    "drivers",
+    "ddu",
+    "artefactos"
+  ]
+}

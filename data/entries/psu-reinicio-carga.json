@@ -1,0 +1,24 @@
+{
+  "id": "psu-reinicio-carga",
+  "departamento_id": "psu",
+  "departamento": "Fuente de Poder (PSU)",
+  "problema": "Reinicios bajo carga",
+  "causa": "Rail 12V inestable o potencia insuficiente",
+  "solucion": [
+    "Leer voltajes con HWInfo (rango 11.4–12.6 V)",
+    "Probar otra PSU confiable",
+    "Revisar conectores PCIe/CPU"
+  ],
+  "verificacion": [
+    "OCCT Power 30 min sin reinicios"
+  ],
+  "riesgo": "ALTO",
+  "nivel": "Intermedio",
+  "tiempo_min": 35,
+  "tags": [
+    "psu",
+    "reinicios",
+    "12v",
+    "occt"
+  ]
+}

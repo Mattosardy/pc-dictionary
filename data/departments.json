@@ -1,0 +1,42 @@
+[
+  {
+    "id": "almacenamiento",
+    "nombre": "Almacenamiento"
+  },
+  {
+    "id": "ram",
+    "nombre": "Memoria RAM"
+  },
+  {
+    "id": "cpu",
+    "nombre": "CPU"
+  },
+  {
+    "id": "gpu",
+    "nombre": "GPU"
+  },
+  {
+    "id": "motherboard",
+    "nombre": "Placa Madre / Chipset"
+  },
+  {
+    "id": "psu",
+    "nombre": "Fuente de Poder (PSU)"
+  },
+  {
+    "id": "cooling",
+    "nombre": "Refrigeración"
+  },
+  {
+    "id": "network",
+    "nombre": "Red y Conectividad"
+  },
+  {
+    "id": "os",
+    "nombre": "Sistema Operativo"
+  },
+  {
+    "id": "security",
+    "nombre": "Seguridad y Backups"
+  }
+]

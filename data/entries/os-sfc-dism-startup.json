@@ -1,0 +1,25 @@
+{
+  "id": "os-sfc-dism-startup",
+  "departamento_id": "os",
+  "departamento": "Sistema Operativo",
+  "problema": "Inicio lento / archivos corruptos",
+  "causa": "Servicios al arranque o corrupción del sistema",
+  "solucion": [
+    "CMD admin: sfc /scannow",
+    "DISM /Online /Cleanup-Image /RestoreHealth",
+    "Desactivar programas de Inicio (Administrador de tareas)"
+  ],
+  "verificacion": [
+    "Boot < 45 s",
+    "Eventos sin errores críticos"
+  ],
+  "riesgo": "BAJO",
+  "nivel": "Básico",
+  "tiempo_min": 20,
+  "tags": [
+    "sfc",
+    "dism",
+    "startup",
+    "windows"
+  ]
+}

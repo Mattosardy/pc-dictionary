@@ -1,0 +1,25 @@
+{
+  "id": "security-restore-imagen",
+  "departamento_id": "security",
+  "departamento": "Seguridad y Backups",
+  "problema": "Windows no arranca tras actualización",
+  "causa": "Archivos del sistema dañados",
+  "solucion": [
+    "Boot USB instalación → Reparar",
+    "Si falla: restaurar imagen (Macrium/Clonezilla)",
+    "Política: imagen cada 30 días"
+  ],
+  "verificacion": [
+    "Arranque normal",
+    "Checksum de imagen OK"
+  ],
+  "riesgo": "MEDIO",
+  "nivel": "Intermedio",
+  "tiempo_min": 30,
+  "tags": [
+    "backup",
+    "macrium",
+    "clonezilla",
+    "restore"
+  ]
+}
