@@ -2,6 +2,10 @@
 const V = document.getElementById('view');
 const Q = document.getElementById('q');
 const BTN_HOME = document.getElementById('btn-home');
+const F_WRAPPER = document.getElementById('filters');
+const F_NIVEL   = document.getElementById('f-nivel');
+const F_RIESGO  = document.getElementById('f-riesgo');
+
 
 let DB = { departments: [], entries: [] };
 
