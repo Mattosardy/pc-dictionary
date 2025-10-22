@@ -71,8 +71,10 @@ function renderEntry(id){
   const e = (DB.entries||[]).find(x=>x.id===id);
   if(!e){ V.innerHTML = '<div class="card" style="margin:16px">No encontrado</div>'; return; }
 
-  const imgs = (e.imagenes&&e.imagenes.length)
-    ? `<div class="gallery">${e.imagenes.map(src=>`<img src="${src}" loading="lazy" alt="captura">`).join('')}</div>`:'';
+  const imgs = (e.imagenes && e.imagenes.length)
+  ? `<div class="gallery">${e.imagenes.map(src=>`<img src="${src}" loading="lazy" alt="captura" onclick="openLB('${src}')">`).join('')}</div>`
+  : '';
+
   const tools = (e.herramientas&&e.herramientas.length)
     ? `<div class="tools">${e.herramientas.map(t=>`<a class="tool-btn" href="${t.url}" target="_blank" rel="noopener">${t.nombre}</a>`).join('')}</div>`:'';
 
