@@ -29,10 +29,11 @@ function route(){
   const hash = location.hash.slice(1);
   if(!hash){ return renderHome(); }
   const [kind, id] = hash.split('/');
-  if(kind==='dept') return renderDept(id);
+  if(kind==='dept')  return renderDept(id);
   if(kind==='entry') return renderEntry(id);
-  return renderHome();
+  return renderHome();   // <- aquí estaba el typo
 }
+
 
 function renderHome(){
   const depts = (DB.departments||[]);
