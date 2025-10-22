@@ -46,6 +46,27 @@ const QUICK = [
 ];
 const CHIPS = ['diskpart','xmp','temperatura','ddu','winsock','dns','wifi','trim','nvme'];
 
+function validateDB(){
+  const errs = [];
+  if(!DB || !Array.isArray(DB.departments)) errs.push("departments no es array");
+  if(!Array.isArray(DB.entries)) errs.push("entries no es array");
+
+  // IDs únicos y deptos válidos
+  const ids = new Set();
+  const deptIds = new Set((DB.departments||[]).map(d=>d.id));
+  (DB.entries||[]).forEach(e=>{
+    if(!e.id) errs.push("Entrada sin id");
+    if(ids.has(e.id)) errs.push("ID duplicado: "+e.id);
+    ids.add(e.id);
+    if(!deptIds.has(e.departamento_id)) errs.push(`Depto inválido en ${e.id}: ${e.departamento_id}`);
+  });
+
+  if(errs.length){
+    console.error("Validador DB:", errs);
+    alert("Errores de datos:\n- " + errs.join("\n- "));
+  }
+}
+
 /* --------- Router --------- */
 function route(){
   const hash = location.hash.slice(1);
