@@ -50,27 +50,53 @@ function renderHome(){
 }
 function renderDept(id){
   const dept = (DB.departments||[]).find(d=>d.id===id);
-  const list = (DB.entries||[]).filter(e=>e.departamento_id===id);
-  V.innerHTML = `
-    <div class="card" style="margin:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><b>${dept?dept.nombre:id}</b> <small>(${list.length} incidencias)</small></div>
-        <a class="btn" href="#">Volver</a>
-      </div>
-    </div>
-    <div class="list">
-      ${list.map(e=>`
-        <div class="entry">
-          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
-            <div><b>${e.problema}</b> <small>[${e.nivel} • ${e.riesgo}]</small></div>
-            <a class="btn" href="#entry/${e.id}">Ver</a>
-          </div>
-          <small>${e.causa}</small>
+  const listBase = (DB.entries||[]).filter(e=>e.departamento_id===id);
+
+  // Mostrar contenedor de filtros
+  F_WRAPPER.style.display = 'flex';
+
+  // Normalizar valores actuales (si venís de otro depto)
+  F_NIVEL.value  = F_NIVEL.value  || '';
+  F_RIESGO.value = F_RIESGO.value || '';
+
+  function applyFilters(){
+    // Clonamos la lista original para no mutar
+    let list = listBase.slice();
+
+    const nv = (F_NIVEL.value||'').trim().toLowerCase();
+    const rz = (F_RIESGO.value||'').trim().toLowerCase();
+
+    if(nv) list = list.filter(e => String(e.nivel||'').toLowerCase().includes(nv));
+    if(rz) list = list.filter(e => String(e.riesgo||'').toLowerCase().includes(rz));
+
+    V.innerHTML = `
+      <div class="card" style="margin:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><b>${dept?dept.nombre:id}</b> <small>(${list.length}/${listBase.length})</small></div>
+          <a class="btn" href="#">Volver</a>
         </div>
-      `).join('')}
-    </div>
-  `;
+      </div>
+      <div class="list">
+        ${list.map(e=>`
+          <div class="entry">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+              <div><b>${e.problema}</b> <small>[${e.nivel} • ${e.riesgo}]</small></div>
+              <a class="btn" href="#entry/${e.id}">Ver</a>
+            </div>
+            <small>${e.causa}</small>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // Recalcular al cambiar selects
+  F_NIVEL.onchange = F_RIESGO.onchange = applyFilters;
+
+  // Primer render
+  applyFilters();
 }
+
 function renderEntry(id){
   const e = (DB.entries||[]).find(x=>x.id===id);
   if(!e){ V.innerHTML = '<div class="card" style="margin:16px">No encontrado</div>'; return; }
