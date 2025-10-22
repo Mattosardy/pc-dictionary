@@ -90,6 +90,15 @@ function renderEntry(id){
     </div>`;
 }
 function copyCommands(list){
+  /* Lightbox */
+function openLB(src){
+  const m = document.createElement('div');
+  m.className = 'lb-mask';
+  m.innerHTML = `<img class="lb-img" src="${src}" alt="preview">`;
+  m.addEventListener('click', ()=> document.body.removeChild(m));
+  document.body.appendChild(m);
+}
+
   const txt = Array.isArray(list)?list.join('\n'):String(list||'');
   navigator.clipboard.writeText(txt).then(()=>alert('Copiado al portapapeles'));
 }
