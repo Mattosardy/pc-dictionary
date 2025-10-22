@@ -32,6 +32,13 @@
 .grid .card{transition:transform .08s ease, box-shadow .08s ease}
 .grid .card:hover{transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.25)}
 .badge-dept{font-size:22px; margin-right:6px}
+/* Sugerencias de búsqueda */
+.qwrap{ position:relative }
+.qsug{ position:absolute; top:42px; left:0; right:0; background:#0d1a26; border:1px solid #103049; border-radius:10px; z-index:50; max-height:50vh; overflow:auto; display:none }
+.qitem{ padding:8px 10px; border-bottom:1px solid #0e1b29; cursor:pointer; display:flex; justify-content:space-between; gap:8px }
+.qitem:hover, .qitem.active{ background:#112030 }
+.qmeta{ opacity:.7; font-size:12px }
+mark{ background:#014d2e; color:#dff; padding:0 2px; border-radius:4px }
 
 
   </style>
