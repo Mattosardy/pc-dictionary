@@ -1,12 +1,4 @@
-/* ============================================================
-   Diccionario de Reparación — App.js (robusto, sin frameworks)
-   - Rehidratación de DB
-   - Portada “executive” (hero + KPIs + chips + accesos rápidos)
-   - Filtros por Nivel/Riesgo en cada departamento
-   - Galería con lightbox y botones a herramientas
-   - Búsqueda extendida
-   - Admin Lite (edición local + export de data.bundle.js)
-   ============================================================ */
+/* Diccionario de Reparación — App estable (sin PWA) */
 
 /* --------- Refs DOM --------- */
 const V          = document.getElementById('view');
@@ -20,11 +12,11 @@ const F_RIESGO   = document.getElementById('f-riesgo');
 /* --------- Estado --------- */
 let DB = { departments: [], entries: [] };
 
-/* --------- Util: Carga segura de window.DB --------- */
+/* --------- Carga segura de window.DB --------- */
 function hydrateDB() {
   try {
     if (window && window.DB && Array.isArray(window.DB.departments)) {
-      DB = window.DB; 
+      DB = window.DB;
       return true;
     }
   } catch(e){}
@@ -38,20 +30,12 @@ function ensureDBThen(fn) {
   }, 50);
 }
 
-/* --------- Iconografía + accesos rápidos + chips --------- */
+/* --------- Iconos y accesos rápidos (opcional) --------- */
 const ICONS = {
-  almacenamiento: "💽",
-  ram:            "🧠",
-  cpu:            "🧩",
-  gpu:            "🎮",
-  motherboard:    "🧷",
-  psu:            "🔌",
-  cooling:        "🌀",
-  network:        "🌐",
-  os:             "🪟",
-  security:       "🛡️"
+  almacenamiento: "💽", ram: "🧠", cpu: "🧩", gpu: "🎮",
+  motherboard: "🧷", psu: "🔌", cooling: "🌀", network: "🌐",
+  os: "🪟", security: "🛡️"
 };
-
 const QUICK = [
   { label: 'DiskPart clean + GPT',        id: 'almacenamiento-diskpart-clean-gpt' },
   { label: 'Reset Winsock/DNS',           id: 'network-stack-reset-dns' },
@@ -60,7 +44,6 @@ const QUICK = [
   { label: 'Reparar BCD (bootrec)',       id: 'os-bootrec-reparar-arranque' },
   { label: 'Update atascado',             id: 'os-wupdate-reset-componentes' }
 ];
-
 const CHIPS = ['diskpart','xmp','temperatura','ddu','winsock','dns','wifi','trim','nvme'];
 
 /* --------- Router --------- */
@@ -73,9 +56,9 @@ function route(){
   return renderHome();
 }
 
-/* --------- Portada (sofisticada) --------- */
+/* --------- Portada --------- */
 function renderHome(){
-  if (F_WRAPPER) F_WRAPPER.style.display = 'none';
+  F_WRAPPER.style.display = 'none';
 
   const depts        = (DB.departments||[]);
   const totalEntries = (DB.entries||[]).length;
@@ -120,14 +103,14 @@ function renderDept(id){
   const dept     = (DB.departments||[]).find(d=>d.id===id);
   const listBase = (DB.entries||[]).filter(e=>e.departamento_id===id);
 
-  if (F_WRAPPER) F_WRAPPER.style.display = 'flex';
-  if (F_NIVEL)   F_NIVEL.value  = F_NIVEL.value  || '';
-  if (F_RIESGO)  F_RIESGO.value = F_RIESGO.value || '';
+  F_WRAPPER.style.display = 'flex';
+  F_NIVEL.value  = F_NIVEL.value  || '';
+  F_RIESGO.value = F_RIESGO.value || '';
 
   function applyFilters(){
     let list = listBase.slice();
-    const nv = (F_NIVEL?.value||'').trim().toLowerCase();
-    const rz = (F_RIESGO?.value||'').trim().toLowerCase();
+    const nv = (F_NIVEL.value||'').trim().toLowerCase();
+    const rz = (F_RIESGO.value||'').trim().toLowerCase();
 
     if(nv) list = list.filter(e => String(e.nivel||'').toLowerCase().includes(nv));
     if(rz) list = list.filter(e => String(e.riesgo||'').toLowerCase().includes(rz));
@@ -153,15 +136,13 @@ function renderDept(id){
     `;
   }
 
-  if (F_NIVEL && F_RIESGO){
-    F_NIVEL.onchange = F_RIESGO.onchange = applyFilters;
-  }
+  F_NIVEL.onchange = F_RIESGO.onchange = applyFilters;
   applyFilters();
 }
 
 /* --------- Entrada (detalle) --------- */
 function renderEntry(id){
-  if (F_WRAPPER) F_WRAPPER.style.display = 'none';
+  F_WRAPPER.style.display = 'none';
 
   const e = (DB.entries||[]).find(x=>x.id===id);
   if(!e){ V.innerHTML = '<div class="card" style="margin:16px">No encontrado</div>'; return; }
@@ -187,6 +168,11 @@ function renderEntry(id){
       ${e.verificacion?.length?`<div><b>Verificación:</b><pre>${e.verificacion.join('\n')}</pre></div>`:''}
       ${e.comandos?.length?`<div><b>Comandos:</b><pre>${e.comandos.join('\n')}</pre></div>`:''}
       ${tools?`<div style="margin-top:6px"><b>Herramientas gratuitas y seguras:</b>${tools}</div>`:''}
+
+      <div style="margin-top:10px">
+        <button class="btn" onclick="copyCommands(${JSON.stringify(e.solucion||[])})">Copiar pasos</button>
+        ${e.comandos?.length?`<button class="btn" onclick='copyCommands(${JSON.stringify(e.comandos||[])})'>Copiar comandos</button>`:''}
+      </div>
     </div>`;
 }
 
@@ -205,8 +191,8 @@ function openLB(src){
   document.body.appendChild(m);
 }
 
-/* --------- Búsqueda extendida --------- */
-Q?.addEventListener('input', ()=>{
+/* --------- Búsqueda simple (estable) --------- */
+Q.addEventListener('input', ()=>{
   const q = Q.value.trim().toLowerCase();
   if(!q){ route(); return; }
   const results = (DB.entries||[]).filter(e=>{
@@ -230,13 +216,12 @@ Q?.addEventListener('input', ()=>{
     </div>`;
 });
 
-/* --------- Admin Lite (sin backend) --------- */
+/* --------- Admin Lite: login + export básico --------- */
 const ADMIN = {
-  // Hash SHA-256 de la contraseña "t3admin" (puedes cambiarlo)
+  // Hash SHA-256 de la contraseña "t3admin"
   hash: "4782469c4e7ae366076c322f3b75578bbaa3458503e2ba02d1211683a93b761e",
   unlocked: false
 };
-
 async function sha256Hex(str){
   const enc = new TextEncoder().encode(str);
   const buf = await crypto.subtle.digest('SHA-256', enc);
@@ -256,7 +241,6 @@ async function adminLogin(){
 }
 function openAdminPanel(){
   if(!ADMIN.unlocked) return alert("Autenticación requerida.");
-
   const panel = document.createElement('div');
   panel.style = "position:fixed;right:12px;bottom:12px;background:#0d1a26;border:1px solid #0f7a44;padding:12px;border-radius:12px;z-index:9999;min-width:280px";
   panel.innerHTML = `
@@ -307,3 +291,9 @@ function quickAddEntry(){
   location.hash = "#entry/" + id;
   route();
 }
+
+/* --------- Listeners --------- */
+BTN_HOME?.addEventListener('click', (e)=>{ e.preventDefault(); location.hash=''; route(); });
+BTN_ADMIN?.addEventListener('click', (e)=>{ e.preventDefault(); ADMIN.unlocked ? openAdminPanel() : adminLogin(); });
+window.addEventListener('hashchange', ()=>ensureDBThen(route));
+window.addEventListener('load',       ()=>ensureDBThen(route));
