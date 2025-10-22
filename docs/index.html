@@ -37,6 +37,21 @@
     </header>
     <input id="q" placeholder="Buscar (ej: diskpart, XMP, drivers, DNS)" />
     <div id="view"></div>
+    <div id="filters" style="display:none;gap:8px;margin-top:-8px" class="tools">
+  <select id="f-nivel" class="tool-btn" style="background:#0d1a26">
+    <option value="">Nivel: Todos</option>
+    <option> Básico</option>
+    <option> Intermedio</option>
+    <option> Avanzado</option>
+  </select>
+  <select id="f-riesgo" class="tool-btn" style="background:#0d1a26">
+    <option value="">Riesgo: Todos</option>
+    <option> BAJO</option>
+    <option> MEDIO</option>
+    <option> ALTO</option>
+  </select>
+</div>
+
   </div>
 
   <!-- IMPORTANTE: primero los datos, luego la app -->
