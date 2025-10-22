@@ -317,4 +317,4 @@ function quickAddEntry(){
 BTN_HOME?.addEventListener('click', (e)=>{ e.preventDefault(); location.hash=''; route(); });
 BTN_ADMIN?.addEventListener('click', (e)=>{ e.preventDefault(); ADMIN.unlocked ? openAdminPanel() : adminLogin(); });
 window.addEventListener('hashchange', ()=>ensureDBThen(route));
-window.addEventListener('load',       ()=>ensureDBThen(route));
+window.addEventListener('load', ()=> ensureDBThen(()=>{ validateDB(); route(); }));
