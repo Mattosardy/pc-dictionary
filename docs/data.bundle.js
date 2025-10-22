@@ -255,7 +255,7 @@ window.DB = {
   "verificacion":[ "Windows arranca sin prompt", "Estado BitLocker = Protegido" ],
   "riesgo":"MEDIO","nivel":"Intermedio","tiempo_min":10,
   "tags":["bitlocker","tpm","recuperacion"]
-}
+},
 
     {
       "id":"almacenamiento-diskpart-clean-gpt",
