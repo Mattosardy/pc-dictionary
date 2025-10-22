@@ -12,6 +12,251 @@ window.DB = {
     {"id":"security","nombre":"Seguridad y Backups"}
   ],
   "entries": [
+
+    /* === REFRIGERACIÓN === */
+{
+  "id":"cooling-polvo-ventiladores",
+  "departamento_id":"cooling",
+  "departamento":"Refrigeración",
+  "problema":"Temperaturas altas y ruido por polvo en ventiladores/radiadores",
+  "causa":"Acumulación de polvo en filtros, aletas del disipador y radiadores",
+  "solucion":[
+    "Apagar PC y desconectar corriente",
+    "Retirar paneles y filtros; limpiar con aire comprimido (sostenido, no golpes)",
+    "Sujetar el aspa del ventilador al soplar (evitar sobre-velocidad del rotor)",
+    "Limpiar aletas del disipador/radiador con brocha antiestática",
+    "Rearmar, revisar dirección de flujo (front IN / top+rear OUT)"
+  ],
+  "verificacion":[
+    "Mejora ≥8–12 °C vs. temperatura inicial",
+    "Ruido percibido menor bajo carga"
+  ],
+  "riesgo":"BAJO","nivel":"Básico","tiempo_min":20,
+  "tags":["polvo","ventiladores","radiador","mantenimiento"],
+  "imagenes":[ "assets/flujo-aire-correcto.png" ]
+},
+{
+  "id":"cooling-ventilador-fallo-rpm",
+  "departamento_id":"cooling","departamento":"Refrigeración",
+  "problema":"Un ventilador no gira o gira a RPM muy bajas",
+  "causa":"Conector mal colocado, curve de ventilador inapropiada o ventilador dañado",
+  "solucion":[
+    "Verificar conexión en SYS_FAN/CHA_FAN/CPU_FAN (3/4 pines correctos)",
+    "Probar el mismo ventilador en otro header",
+    "En BIOS: setear curva estándar o fija 60% para test",
+    "Si no responde: reemplazar ventilador"
+  ],
+  "verificacion":[ "RPM reportada estable en BIOS/HWiNFO", "Temp CPU/GPU dentro de rango normal" ],
+  "riesgo":"BAJO","nivel":"Básico","tiempo_min":10,
+  "tags":["fan","rpm","pwm","dc","header"],
+  "herramientas":[ {"nombre":"HWiNFO","url":"https://www.hwinfo.com/download/"} ]
+},
+{
+  "id":"cooling-aio-burbujas-ruido",
+  "departamento_id":"cooling","departamento":"Refrigeración",
+  "problema":"AIO con burbujeo/ruido y picos térmicos",
+  "causa":"Aire en el loop o bomba en cabecera fan con control PWM inadecuado",
+  "solucion":[
+    "Conectar bomba a header AIO_PUMP o CPU_OPT a 100% constante",
+    "Reposicionar radiador con tubos hacia abajo si es posible (top-mount recomendado)",
+    "Purgar inclinando suavemente para mover burbujas a radiador",
+    "Actualizar curva de ventiladores del radiador"
+  ],
+  "verificacion":[ "Estabilidad térmica bajo carga (Cinebench)", "Sin ruidos de cavitación" ],
+  "riesgo":"MEDIO","nivel":"Intermedio","tiempo_min":20,
+  "tags":["aio","bomba","cavitacion","radiador","curva"],
+  "imagenes":[ "assets/flujo-aire-correcto.png" ]
+},
+
+/* === ALMACENAMIENTO === */
+{
+  "id":"almacenamiento-smart-reallocated",
+  "departamento_id":"almacenamiento","departamento":"Almacenamiento",
+  "problema":"SMART con reallocated/pending sectors",
+  "causa":"Sectores defectuosos crecientes en HDD/SSD",
+  "solucion":[
+    "CrystalDiskInfo: revisar Reallocated/Pending/Uncorrectable",
+    "Backup inmediato de datos críticos",
+    "Ejecutar escaneo largo (SeaTools/WD Data Lifeguard) para confirmar",
+    "Plan: reemplazar drive si métricas aumentan"
+  ],
+  "verificacion":[ "SMART estable 48–72 h", "Sin nuevos eventos de E/S" ],
+  "riesgo":"ALTO","nivel":"Intermedio","tiempo_min":30,
+  "tags":["smart","sectores reasignados","pending"],
+  "herramientas":[
+    {"nombre":"CrystalDiskInfo","url":"https://crystalmark.info/en/software/crystaldiskinfo/"},
+    {"nombre":"SeaTools","url":"https://www.seagate.com/support/downloads/seatools/"}
+  ],
+  "imagenes":[ "assets/crystaldiskinfo-status.png" ]
+},
+{
+  "id":"almacenamiento-bios-nvme-no-detectado",
+  "departamento_id":"almacenamiento","departamento":"Almacenamiento",
+  "problema":"NVMe no detectado en BIOS",
+  "causa":"Slot M.2 compartido/deshabilitado por líneas PCIe o modo SATA",
+  "solucion":[
+    "Revisar manual: deshabilitaciones por uso de SATA 5/6 o GPU en x16",
+    "Mover NVMe a otro M.2 con líneas de CPU/Chipset disponibles",
+    "Actualizar BIOS/UEFI",
+    "Quitar adaptadores/risers; testear directo"
+  ],
+  "verificacion":[ "NVMe visible en BIOS/Windows", "Velocidad acorde al estándar (PCIe 3/4)" ],
+  "riesgo":"MEDIO","nivel":"Intermedio","tiempo_min":15,
+  "tags":["nvme","m.2","pcie","lanes","bios"],
+  "imagenes":[ "assets/nvme-throttle-graph.png" ]
+},
+
+/* === RAM === */
+{
+  "id":"ram-mixtas-incompatibles",
+  "departamento_id":"ram","departamento":"Memoria RAM",
+  "problema":"Módulos mixtos (marcas/timings) inestables",
+  "causa":"SPD distintos y training subóptimo",
+  "solucion":[
+    "Desactivar XMP/EXPO y setear manualmente frecuencia JEDEC estable",
+    "Ajustar voltaje DRAM +0.05 V y SoC (AMD) según guía del fabricante",
+    "MemTest86 4 pasadas; si falla, usar solo kit emparejado"
+  ],
+  "verificacion":[ "0 errores en MemTest86", "Sin BSOD 24–48 h" ],
+  "riesgo":"MEDIO","nivel":"Intermedio","tiempo_min":35,
+  "tags":["spd","mix","xmp","expo","memtest"],
+  "herramientas":[ {"nombre":"MemTest86+","url":"https://www.memtest.org/"} ]
+},
+{
+  "id":"ram-slot-sucio-no-post",
+  "departamento_id":"ram","departamento":"Memoria RAM",
+  "problema":"Sin POST con pitidos/LED DRAM",
+  "causa":"Slot sucio o módulo mal asentado",
+  "solucion":[
+    "Apagar, retirar módulo y limpiar contactos con isopropílico",
+    "Soplar suavemente slot (aire seco) y reinstalar hasta el click",
+    "Probar por pares A2/B2 (dual-channel recomendado)"
+  ],
+  "verificacion":[ "POST normal", "MemTest corto sin errores" ],
+  "riesgo":"BAJO","nivel":"Básico","tiempo_min":10,
+  "tags":["post","slots","contacto","dual channel"]
+},
+
+/* === CPU === */
+{
+  "id":"cpu-pasta-exceso-margenes",
+  "departamento_id":"cpu","departamento":"CPU",
+  "problema":"Temperaturas disparadas tras reinstalar disipador",
+  "causa":"Exceso de pasta térmica o presión desigual",
+  "solucion":[
+    "Limpiar superficies con isopropílico 99%",
+    "Aplicar cantidad tipo lenteja/linea (según IHS) y montar cruzado",
+    "Verificar presión homogénea y RPM del ventilador"
+  ],
+  "verificacion":[ "Idle <45 °C", "Carga sostenida <85 °C" ],
+  "riesgo":"BAJO","nivel":"Básico","tiempo_min":20,
+  "tags":["pasta termica","montaje","ihs"],
+  "imagenes":[ "assets/pasta-termica-correcta.jpg" ]
+},
+
+/* === GPU === */
+{
+  "id":"gpu-psu-pcie-cables",
+  "departamento_id":"gpu","departamento":"GPU",
+  "problema":"Cierres al iniciar juego o stress",
+  "causa":"Conectores PCIe compartidos o PSU límite",
+  "solucion":[
+    "Usar cables PCIe separados desde la PSU (no daisy-chain)",
+    "Verificar potencia de PSU y rail 12V estable (11.4–12.6 V)",
+    "DDU + driver limpio si persiste"
+  ],
+  "verificacion":[ "3D stress 20–30 min sin apagones", "Eventos sin Kernel-Power 41" ],
+  "riesgo":"ALTO","nivel":"Intermedio","tiempo_min":25,
+  "tags":["pcie","psu","12v","ddu"],
+  "herramientas":[
+    {"nombre":"OCCT","url":"https://www.ocbase.com/"},
+    {"nombre":"HWiNFO","url":"https://www.hwinfo.com/download/"},
+    {"nombre":"DDU","url":"https://www.wagnardsoft.com/"}
+  ],
+  "imagenes":[ "assets/gpu-z-specs.png","assets/psu-voltages-hwinfo.png" ]
+},
+
+/* === PLACA MADRE / CHIPSET === */
+{
+  "id":"mb-bios-fastboot-perifericos",
+  "departamento_id":"motherboard","departamento":"Placa Madre / Chipset",
+  "problema":"Teclado/USB no responde al boot",
+  "causa":"Fast Boot o Legacy USB deshabilitado",
+  "solucion":[
+    "Entrar a BIOS: desactivar Fast Boot temporalmente",
+    "Habilitar Legacy USB/CSM si el SO lo requiere",
+    "Actualizar BIOS si hay bugs conocidos"
+  ],
+  "verificacion":[ "Periféricos disponibles en POST/BIOS" ],
+  "riesgo":"BAJO","nivel":"Básico","tiempo_min":8,
+  "tags":["bios","fast boot","legacy usb","csm"]
+},
+
+/* === PSU === */
+{
+  "id":"psu-cables-sueltos-8pin-cpu",
+  "departamento_id":"psu","departamento":"Fuente de Poder (PSU)",
+  "problema":"Reinicios aleatorios; sin video esporádico",
+  "causa":"Conector EPS 8-pin CPU flojo/parcialmente conectado",
+  "solucion":[
+    "Verificar EPS 8-pin/4+4 bien insertado (clic) en la placa",
+    "Comprobar firmeza en cables y modular PSU",
+    "Stress combinado (OCCT Power) para validar"
+  ],
+  "verificacion":[ "OCCT Power 30 min estable", "Eventos sin Kernel-Power 41" ],
+  "riesgo":"ALTO","nivel":"Básico","tiempo_min":10,
+  "tags":["eps","8pin","reinicios","kernel power"],
+  "herramientas":[ {"nombre":"OCCT","url":"https://www.ocbase.com/"} ]
+},
+
+/* === RED === */
+{
+  "id":"network-dns-slow-fallback",
+  "departamento_id":"network","departamento":"Red y Conectividad",
+  "problema":"Resolución DNS lenta/errática",
+  "causa":"DNS del ISP saturado o caché dañada",
+  "solucion":[
+    "ipconfig /flushdns",
+    "Configurar IPv4: 1.1.1.1 y 8.8.8.8 como preferidos",
+    "Probar `nslookup` y latencia"
+  ],
+  "verificacion":[ "ping a dominios <30 ms", "navegación fluida" ],
+  "riesgo":"BAJO","nivel":"Básico","tiempo_min":5,
+  "tags":["dns","latencia","nslookup"]
+},
+
+/* === SISTEMA OPERATIVO === */
+{
+  "id":"os-servicios-terceros-bootlento",
+  "departamento_id":"os","departamento":"Sistema Operativo",
+  "problema":"Inicio muy lento tras instalar software",
+  "causa":"Servicios de terceros y programas de arranque pesados",
+  "solucion":[
+    "msconfig → Inicio selectivo (servicios de Microsoft ocultos)",
+    "Deshabilitar no esenciales y reiniciar",
+    "Revisar Programador de Tareas (Library) por tareas pesadas"
+  ],
+  "verificacion":[ "Boot < 45–60 s", "Sin eventos críticos en Visor" ],
+  "riesgo":"BAJO","nivel":"Básico","tiempo_min":15,
+  "tags":["startup","msconfig","task scheduler"]
+},
+
+/* === SEGURIDAD / BACKUP === */
+{
+  "id":"security-bitlocker-recuperacion",
+  "departamento_id":"security","departamento":"Seguridad y Backups",
+  "problema":"BitLocker pide clave de recuperación tras cambio BIOS",
+  "causa":"Protección TPM/arranque detectó cambio de plataforma",
+  "solucion":[
+    "Ingresar clave de recuperación (MS Account/AD)",
+    "Suspender BitLocker temporalmente antes de cambios de BIOS",
+    "Reanudar cifrado tras validar boot normal"
+  ],
+  "verificacion":[ "Windows arranca sin prompt", "Estado BitLocker = Protegido" ],
+  "riesgo":"MEDIO","nivel":"Intermedio","tiempo_min":10,
+  "tags":["bitlocker","tpm","recuperacion"]
+}
+
     {
       "id":"almacenamiento-diskpart-clean-gpt",
       "departamento_id":"almacenamiento",
