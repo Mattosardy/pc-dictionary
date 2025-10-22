@@ -36,6 +36,8 @@ function route(){
 
 
 function renderHome(){
+  F_WRAPPER.style.display = 'none';   // oculta selects fuera del depto
+  // ...resto del código existente de renderHome...
   const depts = (DB.departments||[]);
   const cards = depts.map(d=>`
     <div class="card">
