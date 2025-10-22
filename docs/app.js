@@ -128,6 +128,20 @@ function renderDept(id){
   F_NIVEL.value  = F_NIVEL.value  || '';
   F_RIESGO.value = F_RIESGO.value || '';
 
+// Orden: Básico → Intermedio → Avanzado; si empatan, por riesgo BAJO→ALTO y luego alfabético
+const ordenNivel  = { "básico":0, "basico":0, "intermedio":1, "avanzado":2 };
+const ordenRiesgo = { "bajo":0, "medio":1, "alto":2 };
+listBase.sort((a,b)=>{
+  const na = ordenNivel[(a.nivel||"").toLowerCase()] ?? 9;
+  const nb = ordenNivel[(b.nivel||"").toLowerCase()] ?? 9;
+  if(na!==nb) return na-nb;
+  const ra = ordenRiesgo[(a.riesgo||"").toLowerCase()] ?? 9;
+  const rb = ordenRiesgo[(b.riesgo||"").toLowerCase()] ?? 9;
+  if(ra!==rb) return ra-rb;
+  return (a.problema||"").localeCompare(b.problema||"");
+});
+
+  
   function applyFilters(){
     let list = listBase.slice();
     const nv = (F_NIVEL.value||'').trim().toLowerCase();
