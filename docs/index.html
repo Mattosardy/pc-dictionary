@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Diccionario de Reparación - TelecomT3</title>
-  <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="theme-color" content="#0a121a">
   <style>
     body{font-family:system-ui,Segoe UI,Roboto,sans-serif;margin:0;background:#08121b;color:#dfe;line-height:1.5}
     header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#0b1a25;position:sticky;top:0;z-index:1000}
     header h1{font-size:16px;margin:0;color:#2bb673}
+    .wrap{max-width:1100px;margin:0 auto}
+    .qwrap{ position:relative;flex:1 }
     input{padding:8px 12px;border:none;border-radius:8px;width:100%;background:#0d1a26;color:#dfe}
     a.btn,button.btn{background:#124;border:none;border-radius:8px;color:#dfe;padding:6px 10px;cursor:pointer;text-decoration:none}
     a.btn:hover,button.btn:hover{background:#2bb673;color:#000}
@@ -21,10 +21,6 @@
     .tool-btn:hover{background:#2bb673;color:#000}
     img{max-width:100%;border-radius:10px;cursor:pointer}
     pre{background:#0a1c27;border:1px solid #123;padding:6px;border-radius:8px;overflow:auto;color:#cfc}
-    /* Lightbox */
-    .lb-mask{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
-    .lb-img{max-width:95vw;max-height:90vh;border-radius:10px;border:2px solid #2bb673}
-    /* Hero + KPIs + Chips */
     .hero{margin:10px;background:linear-gradient(135deg,#0b1e2b,#0f2d3f);border:1px solid #103049;border-radius:14px;padding:14px 16px}
     .hero h1{margin:0 0 6px 0;font-size:20px}
     .kpis{display:flex;gap:14px;flex-wrap:wrap}
@@ -33,52 +29,44 @@
     .chip{border:1px solid #2bb673;background:#0b1e2b;padding:6px 10px;border-radius:16px;cursor:pointer}
     .grid .card:hover{transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.25)}
     .badge-dept{font-size:22px; margin-right:6px}
-    /* Filtros */
     #filters{display:none;gap:8px;margin:10px 16px}
     select.tool-btn{background:#0d1a26;border:1px solid #123;color:#dfe;padding:5px;border-radius:8px}
-    /* Búsqueda rápida */
-    .qwrap{ position:relative;flex:1 }
-    .qsug{ position:absolute; top:42px; left:0; right:0; background:#0d1a26; border:1px solid #103049; border-radius:10px; z-index:50; max-height:50vh; overflow:auto; display:none }
-    .qitem{ padding:8px 10px; border-bottom:1px solid #0e1b29; cursor:pointer; display:flex; justify-content:space-between; gap:8px }
-    .qitem:hover,.qitem.active{ background:#112030 }
-    .qmeta{ opacity:.7; font-size:12px }
-    mark{ background:#014d2e; color:#dff; padding:0 2px; border-radius:4px }
+    /* Lightbox */
+    .lb-mask{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .lb-img{max-width:95vw;max-height:90vh;border-radius:10px;border:2px solid #2bb673}
   </style>
 </head>
 <body>
-<header>
-  <h1>TelecomT3</h1>
-  <div class="qwrap">
-    <input id="q" placeholder="Buscar (ej: diskpart, XMP, DNS) — / o Ctrl+K">
-    <div id="q-suggest" class="qsug"></div>
-  </div>
-  <a id="btn-admin" class="btn" href="#" style="margin-left:auto">Admin</a>
-  <a id="btn-home"  class="btn" href="#" style="margin-left:8px">Portada</a>
-</header>
+<div class="wrap">
+  <header>
+    <h1>TelecomT3</h1>
+    <div class="qwrap">
+      <input id="q" placeholder="Buscar (ej: diskpart, XMP, DNS)">
+    </div>
+    <a id="btn-admin" class="btn" href="#" style="margin-left:auto">Admin</a>
+    <a id="btn-home"  class="btn" href="#" style="margin-left:8px">Portada</a>
+  </header>
 
-<div id="filters">
-  <select id="f-nivel" class="tool-btn">
-    <option value="">Nivel: Todos</option>
-    <option>Básico</option>
-    <option>Intermedio</option>
-    <option>Avanzado</option>
-  </select>
-  <select id="f-riesgo" class="tool-btn">
-    <option value="">Riesgo: Todos</option>
-    <option>BAJO</option>
-    <option>MEDIO</option>
-    <option>ALTO</option>
-  </select>
+  <div id="filters">
+    <select id="f-nivel" class="tool-btn">
+      <option value="">Nivel: Todos</option>
+      <option>Básico</option>
+      <option>Intermedio</option>
+      <option>Avanzado</option>
+    </select>
+    <select id="f-riesgo" class="tool-btn">
+      <option value="">Riesgo: Todos</option>
+      <option>BAJO</option>
+      <option>MEDIO</option>
+      <option>ALTO</option>
+    </select>
+  </div>
+
+  <div id="view"></div>
 </div>
 
-<div id="view"></div>
-
-<script src="./data.bundle.js?v=2025-10-21"></script>
-<script src="./app.js?v=2025-10-21"></script>
-<script>
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('./sw.js');
-  }
-</script>
+<!-- IMPORTANTE: primero los datos, luego la app -->
+<script src="./data.bundle.js"></script>
+<script src="./app.js"></script>
 </body>
 </html>
