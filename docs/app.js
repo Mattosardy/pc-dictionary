@@ -343,21 +343,32 @@ async function adminLogin(){
   if(!pw) return;
   const h = await sha256Hex(pw);
   if(h === ADMIN.hash){
-    ADMIN.unlocked = true;
-    alert("Acceso concedido.");
-    openAdminPanel();
-  } else {
-    alert("Contraseña incorrecta.");
-  }
+  ADMIN.unlocked = true;
+  alert("Acceso concedido.");
+  openAdminPanel();
+  if(!location.hash) renderHome(); // actualiza el botón del hero a “Descargar ZIP”
+} else {
+  alert("Contraseña incorrecta.");
+}
+
 }
 function openAdminPanel(){
   if(!ADMIN.unlocked) return alert("Autenticación requerida.");
-  const panel = document.createElement('div');
-  panel.style = "position:fixed;right:12px;bottom:12px;background:#0d1a26;border:1px solid #0f7a44;padding:12px;border-radius:12px;z-index:9999;min-width:280px";
+
+  // si ya existe, no duplicar
+  let panel = document.getElementById('admin-panel');
+  if(panel){ panel.remove(); } // recreamos limpio
+
+  panel = document.createElement('div');
+  panel.id = 'admin-panel';
+  panel.style = "position:fixed;right:12px;bottom:12px;background:#0d1a26;border:1px solid #0f7a44;padding:12px;border-radius:12px;z-index:9999;min-width:300px;max-width:92vw;box-shadow:0 6px 28px rgba(0,0,0,.5)";
   panel.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px">
       <b>Panel Admin</b>
-      <a href="#" onclick="document.body.removeChild(this.closest('div'));return false" class="btn">Cerrar</a>
+      <div style="display:flex;gap:6px">
+        <a href="#" class="btn" onclick="closeAdminPanel();return false">Cerrar</a>
+        <a href="#" class="btn" onclick="logoutAdmin();return false" title="Cerrar sesión de administrador">Salir</a>
+      </div>
     </div>
     <div class="tools" style="margin:0">
       <a class="tool-btn" href="#" onclick="exportZipOffline();return false">🗂️ Exportar ZIP (offline)</a>
@@ -368,6 +379,20 @@ function openAdminPanel(){
   `;
   document.body.appendChild(panel);
 }
+
+function closeAdminPanel(){
+  const p = document.getElementById('admin-panel');
+  if(p) p.remove();
+}
+
+function logoutAdmin(){
+  ADMIN.unlocked = false;
+  closeAdminPanel();
+  alert("Sesión de administrador cerrada.");
+  // si estás en portada, refresca para ocultar el botón de ZIP en el hero
+  if(!location.hash) renderHome();
+}
+
 function exportDataBundle(){
   const js = "window.DB = " + JSON.stringify(DB, null, 2) + ";\n";
   const blob = new Blob([js], {type:"application/javascript"});
