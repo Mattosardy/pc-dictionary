@@ -361,8 +361,118 @@ function openAdminPanel(){
       <a href="#" onclick="document.body.removeChild(this.closest('div'));return false" class="btn">Cerrar</a>
     </div>
     <div class="tools" style="margin:0">
+      <a class="tool-btn" href="#" onclick="exportZipOffline();return false">🗂️ Exportar ZIP (offline)</a>
       <a class="tool-btn" href="#" onclick="quickAddEntry();return false">➕ Añadir entrada rápida</a>
       <a class="tool-btn" href="#" onclick="exportDataBundle();return false">⬇️ Exportar data.bundle.js</a>
+      async function exportZipOffline(){
+  if(typeof JSZip==='undefined'){ 
+    alert("JSZip no disponible. Revisa el <script> en index.html.");
+    return;
+  }
+  const zip = new JSZip();
+
+  // 1) index.html base (minimal adaptado a local)
+  const idx = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TelecomT3 - Offline</title>
+<link rel="icon" href="data:,">
+<style>
+body{font-family:system-ui,Segoe UI,Roboto,sans-serif;margin:0;background:#08121b;color:#dfe}
+header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#0b1a25;position:sticky;top:0;z-index:1000}
+header h1{font-size:16px;margin:0;color:#2bb673}
+.wrap{max-width:1100px;margin:0 auto}
+.qwrap{position:relative;flex:1;max-width:600px;margin-right:12px}
+input{padding:8px 12px;border:none;border-radius:8px;width:100%;background:#0d1a26;color:#dfe}
+a.btn,button.btn{background:#124;border:none;border-radius:8px;color:#dfe;padding:6px 10px;cursor:pointer;text-decoration:none}
+a.btn:hover,button.btn:hover{background:#2bb673;color:#000}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin:16px}
+.card{background:#0d1a26;border:1px solid #123;padding:12px;border-radius:10px}
+.entry{background:#0d1a26;border:1px solid #123;border-radius:10px;padding:8px;margin:8px}
+.tools,.gallery{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.tool-btn{background:#113;border-radius:8px;padding:5px 10px;text-decoration:none;color:#dfe;border:1px solid #124}
+.tool-btn:hover{background:#2bb673;color:#000}
+img{max-width:100%;border-radius:10px;cursor:pointer}
+pre{background:#0a1c27;border:1px solid #123;padding:6px;border-radius:8px;overflow:auto;color:#cfc}
+.hero{margin:10px;background:linear-gradient(135deg,#0b1e2b,#0f2d3f);border:1px solid #103049;border-radius:14px;padding:14px 16px}
+.hero h1{margin:0 0 6px 0;font-size:20px}
+.kpis{display:flex;gap:14px;flex-wrap:wrap}
+.kpi{background:#0d1a26;border:1px solid #113049;border-radius:10px;padding:6px 10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.badge-dept{font-size:22px;margin-right:6px}
+#filters{display:none;gap:8px;margin:10px 16px}
+select.tool-btn{background:#0d1a26;border:1px solid #123;color:#dfe;padding:5px;border-radius:8px}
+/* Lightbox */
+.lb-mask{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
+.lb-img{max-width:95vw;max-height:90vh;border-radius:10px;border:2px solid #2bb673}
+/* responsive */
+@media (max-width:700px){header{flex-wrap:wrap;gap:8px}.qwrap{order:3;width:100%;max-width:none;margin:8px 0 0 0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>TelecomT3 (Offline)</h1>
+    <div class="qwrap"><input id="q" placeholder="Buscar"></div>
+    <a id="btn-admin" class="btn" href="#" style="margin-left:auto">Admin</a>
+    <a id="btn-home" class="btn" href="#" style="margin-left:8px">Portada</a>
+  </header>
+  <div id="filters">
+    <select id="f-nivel" class="tool-btn">
+      <option value="">Nivel: Todos</option><option>Básico</option><option>Intermedio</option><option>Avanzado</option>
+    </select>
+    <select id="f-riesgo" class="tool-btn">
+      <option value="">Riesgo: Todos</option><option>BAJO</option><option>MEDIO</option><option>ALTO</option>
+    </select>
+  </div>
+  <div id="view"></div>
+</div>
+<script src="./data.bundle.js"></script>
+<script src="./app.js"></script>
+</body></html>`;
+  zip.file('index.html', idx);
+
+  // 2) app.js y data.bundle.js actuales (desde el DOM)
+  // Nota: asumimos que estás ejecutando esta función en el sitio ya cargado con tus archivos vigentes
+  try{
+    const appResp = await fetch('./app.js',{cache:'no-store'});
+    zip.file('app.js', await appResp.text());
+  }catch(_){ alert("No pude leer app.js desde el servidor."); }
+
+  try{
+    const dataResp = await fetch('./data.bundle.js',{cache:'no-store'});
+    zip.file('data.bundle.js', await dataResp.text());
+  }catch(_){ alert("No pude leer data.bundle.js desde el servidor."); }
+
+  // 3) Imágenes referenciadas en el DB (solo las que existan)
+  const imgSet = new Set();
+  (DB.entries||[]).forEach(e=> (e.imagenes||[]).forEach(src=> imgSet.add(src)));
+  const imgs = [...imgSet]; // p.ej. 'assets/flujo-aire-correcto.png'
+
+  // Descargar cada imagen y agregarla al ZIP conservando ruta
+  for(const path of imgs){
+    try{
+      const r = await fetch(path);
+      if(!r.ok) continue;
+      const b = await r.blob();
+      const arrbuf = await b.arrayBuffer();
+      zip.file(path, arrbuf); // respeta subcarpeta assets/
+    }catch(_){}
+  }
+
+  // 4) Generar y descargar
+  const blob = await zip.generateAsync({type:"blob"});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'telecomt3_offline.zip';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+  alert("Paquete ZIP generado. Copialo al pendrive y abrí index.html.");
+}
+
     </div>
     <small style="opacity:.8;display:block;margin-top:6px">Sube el archivo exportado a <code>docs/data.bundle.js</code> en GitHub.</small>
   `;
