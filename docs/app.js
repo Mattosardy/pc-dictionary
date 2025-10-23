@@ -65,7 +65,6 @@ function trackEntryView(id){
     localStorage.setItem(rk, JSON.stringify(arr.slice(0,12)));
   }catch(_){}
 }
-
 function trackQuery(q){
   if(!q) return;
   try{
@@ -80,7 +79,6 @@ function getTopQueries(n=5){
     return Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([q])=>q);
   }catch(_){ return []; }
 }
-
 function getRecentEntries(n=6){
   try{
     const ids = JSON.parse(localStorage.getItem('t3_recent') || '[]').slice(0,n);
@@ -88,7 +86,6 @@ function getRecentEntries(n=6){
     return ids.map(id=>map.get(id)).filter(Boolean);
   }catch(_){ return []; }
 }
-
 
 /* --------- Validador de datos --------- */
 function validateDB(){
@@ -122,6 +119,7 @@ function route(){
 
 /* --------- Portada --------- */
 function renderHome(){
+  if(!V){ alert('No se encontró #view en el DOM'); return; }
   F_WRAPPER.style.display = 'none';
 
   const depts        = (DB.departments||[]);
@@ -211,23 +209,6 @@ function renderHome(){
   V.innerHTML = hero + quick + recentBlock + deptsGrid + footer + (depts.length ? '' : `
     <div class="card" style="margin:16px">
       <b>Sin departamentos.</b><br>Verifica que <code>data.bundle.js</code> cargue correctamente antes de <code>app.js</code>.
-    </div>`);
-}
-
-
-  const cards = depts.map(d=>`
-    <div class="card">
-      <div style="font-weight:700;margin-bottom:8px">
-        <span class="badge-dept">${ICONS[d.id]||'📦'}</span>${d.nombre}
-      </div>
-      <a class="btn" href="#dept/${d.id}">Abrir</a>
-    </div>
-  `).join('');
-
-  V.innerHTML = hero + `<div class="grid">${cards}</div>` + (depts.length ? '' :
-    `<div class="card" style="margin:16px">
-      <b>No hay departamentos cargados.</b><br>
-      Verifica que <code>data.bundle.js</code> empiece con <code>window.DB = { ... }</code> y esté antes de <code>app.js</code>.
     </div>`);
 }
 function setQuery(q){ Q.value = q; Q.dispatchEvent(new Event('input')); }
@@ -606,17 +587,6 @@ window.addEventListener('keydown',(e)=>{
     const p = document.getElementById('admin-panel');
     if(p){ closeAdminPanel(); }
   }
-window.addEventListener('load', ()=> ensureDBThen(()=>{
-  try { validateDB(); route(); }
-  catch(err){
-    const V = document.getElementById('view');
-    V.innerHTML = '<div class="card"><b>Error al renderizar:</b><br><pre>'
-      + (err && err.stack ? err.stack : String(err))
-      + '</pre></div>';
-  }
-}));
-
-  
 });
 
 /* --------- Listeners --------- */
@@ -629,8 +599,17 @@ BTN_ADMIN?.addEventListener('click', (e)=>{
 });
 window.addEventListener('hashchange', ()=>ensureDBThen(route));
 window.addEventListener('load', ()=> ensureDBThen(()=>{ 
-  validateDB(); 
-  // refresca etiqueta del botón admin si ya estaba logueado (sesión previa)
-  if (BTN_ADMIN) BTN_ADMIN.textContent = ADMIN.unlocked ? 'Admin ✅' : 'Admin';
-  route(); 
+  try{
+    validateDB(); 
+    if (BTN_ADMIN) BTN_ADMIN.textContent = ADMIN.unlocked ? 'Admin ✅' : 'Admin';
+    route();
+  }catch(err){
+    if(V){
+      V.innerHTML = '<div class="card" style="margin:16px"><b>Error al renderizar:</b><pre style="white-space:pre-wrap">'
+        + (err && err.stack ? err.stack : String(err))
+        + '</pre></div>';
+    }else{
+      alert('Error al renderizar: '+ (err && err.message ? err.message : String(err)));
+    }
+  }
 }));
