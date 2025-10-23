@@ -47,6 +47,44 @@ ve;flex:1 }
   #btn-admin, #btn-home, #btn-faq{order:2}
 }
 
+/* === Layout Home Pro === */
+:root{
+  --bg:#08121b; --panel:#0d1a26; --line:#123; --brand:#2bb673; --muted:#9fb4c7;
+}
+.hero{ margin:10px; padding:16px; border-radius:16px;
+  background: linear-gradient(135deg,#0b1e2b,#0e2433 50%, #112d3f);
+  border:1px solid #103049;
+}
+.hero-top { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+.hero-title { display:flex; align-items:center; gap:10px; }
+.hero-title h1 { margin:0; font-size:22px; line-height:1.2; }
+.kpis{ display:flex; gap:10px; flex-wrap:wrap; }
+.kpi{ background:var(--panel); border:1px solid #113049; border-radius:12px; padding:8px 12px; min-width:120px }
+.kpi small{ display:block; color:var(--muted); font-weight:600; }
+.kpi b{ font-size:18px }
+
+.toolbar { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px }
+.btn-ghost { background:transparent; border:1px dashed var(--line); color:#dfe; padding:6px 10px; border-radius:10px; text-decoration:none }
+.btn-ghost:hover { border-color:var(--brand); color:#000; background:var(--brand) }
+
+.section { margin:16px 0 }
+.section h3 { margin:0 0 8px 0; font-size:16px; color:#cfe }
+.grid-depts { display:grid; gap:10px; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); }
+.card-dept { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px; display:flex; gap:10px; align-items:center; justify-content:space-between }
+.card-dept .left { display:flex; gap:10px; align-items:center }
+.badge { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:#0f1e2a; border:1px solid #103049; font-size:18px }
+
+.chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px }
+.chip { background:#0d1a26; border:1px solid #103049; padding:6px 10px; border-radius:999px; cursor:pointer }
+.chip:hover{ background:var(--brand); color:#000 }
+
+.list-compact { display:flex; flex-direction:column; gap:8px }
+.item-compact { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 10px; display:flex; justify-content:space-between; gap:8px }
+.item-compact small { color:var(--muted) }
+
+.footer-muted{ color:#8ba0b4; font-size:12px; text-align:center; margin:18px 0 }
+
+    
   </style>
 </head>
 <body>
