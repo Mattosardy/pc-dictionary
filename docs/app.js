@@ -129,6 +129,15 @@ function renderHome(){
         ${[...new Set([...getTopQueries(5), ...CHIPS])].slice(0,10)
             .map(c=>`<span class="chip" onclick="setQuery('${c}')">#${c}</span>`).join('')}
       </div>
+
+      ${ADMIN.unlocked ? `
+        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+          <span class="kpi" style="border-color:#0f7a44">Modo Admin ✅</span>
+          <a class="btn" href="#" onclick="exportZipOffline();return false">🗂️ Descargar ZIP (offline)</a>
+          <a class="btn" href="#" onclick="openAdminPanel();return false">⚙️ Panel Admin</a>
+          <a class="btn" href="#" onclick="logoutAdmin();return false">Salir</a>
+        </div>
+      ` : ``}
     </div>
     <div class="card" style="margin:12px 0">
       <div style="margin-bottom:6px"><b>Accesos rápidos</b></div>
@@ -151,6 +160,8 @@ function renderHome(){
       Verifica que <code>data.bundle.js</code> empiece con <code>window.DB = { ... }</code> y esté antes de <code>app.js</code>.
     </div>`);
 }
+
+
 function setQuery(q){ Q.value = q; Q.dispatchEvent(new Event('input')); }
 
 /* --------- Departamento (con filtros + orden) --------- */
@@ -343,15 +354,17 @@ async function adminLogin(){
   if(!pw) return;
   const h = await sha256Hex(pw);
   if(h === ADMIN.hash){
-  ADMIN.unlocked = true;
-  alert("Acceso concedido.");
-  openAdminPanel();
-  if(!location.hash) renderHome(); // actualiza el botón del hero a “Descargar ZIP”
-} else {
-  alert("Contraseña incorrecta.");
+    ADMIN.unlocked = true;
+    alert("Acceso concedido.");
+    // marca el botón en el header
+    if (BTN_ADMIN) BTN_ADMIN.textContent = 'Admin ✅';
+    openAdminPanel();
+    if(!location.hash) renderHome(); // muestra bloque Admin en home
+  } else {
+    alert("Contraseña incorrecta.");
+  }
 }
 
-}
 function openAdminPanel(){
   if(!ADMIN.unlocked) return alert("Autenticación requerida.");
 
@@ -389,9 +402,10 @@ function logoutAdmin(){
   ADMIN.unlocked = false;
   closeAdminPanel();
   alert("Sesión de administrador cerrada.");
-  // si estás en portada, refresca para ocultar el botón de ZIP en el hero
-  if(!location.hash) renderHome();
+  if (BTN_ADMIN) BTN_ADMIN.textContent = 'Admin';
+  if(!location.hash) renderHome(); // oculta bloque Admin en home
 }
+
 
 function exportDataBundle(){
   const js = "window.DB = " + JSON.stringify(DB, null, 2) + ";\n";
@@ -586,7 +600,15 @@ window.addEventListener('keydown',(e)=>{
 
 /* --------- Listeners --------- */
 BTN_HOME?.addEventListener('click', (e)=>{ e.preventDefault(); location.hash=''; route(); });
-BTN_ADMIN?.addEventListener('click', (e)=>{ e.preventDefault(); ADMIN.unlocked ? openAdminPanel() : adminLogin(); });
+BTN_ADMIN?.addEventListener('click', (e)=>{
+  e.preventDefault();
+  if(!ADMIN.unlocked){
+    adminLogin();
+    return;
+  }
+  const p = document.getElementById('admin-panel');
+  p ? closeAdminPanel() : openAdminPanel();
+});
 BTN_ADMIN?.addEventListener('click', (e)=>{
   e.preventDefault();
   if(!ADMIN.unlocked){
