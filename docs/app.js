@@ -305,7 +305,7 @@ Q.addEventListener('input', ()=>{
   const q = Q.value.trim().toLowerCase();
   if(q) trackQuery(q);
   if(!q){ route(); return; }
-  const results = (DB.entries||[]).filter(e=>{
+    const results = (DB.entries||[]).filter(e=>{
     const tools = (e.herramientas||[]).map(h=>h.nombre).join(' ');
     return (e.problema||'').toLowerCase().includes(q) ||
            (e.causa||'').toLowerCase().includes(q) ||
@@ -313,6 +313,8 @@ Q.addEventListener('input', ()=>{
            (e.solucion||[]).join(' ').toLowerCase().includes(q) ||
            tools.toLowerCase().includes(q);
   });
+  LAST_RESULTS = results;
+
   V.innerHTML = `
     <div class="card" style="margin:16px"><div><b>Resultados</b> <small>(${results.length})</small></div></div>
     <div class="list">${results.map(e=>`
