@@ -46,6 +46,39 @@ const QUICK = [
 ];
 const CHIPS = ['diskpart','xmp','temperatura','ddu','winsock','dns','wifi','trim','nvme'];
 
+/* --------- Estado de búsqueda + telemetría --------- */
+let LAST_RESULTS = []; // se llena en el buscador
+const STATS = {
+  entryKey: (id)=> 't3_stats_entry_'+id,        // vistas por entrada
+  queryKey:       't3_stats_queries'           // mapa {query:count}
+};
+
+function trackEntryView(id){
+  try{
+    const k = STATS.entryKey(id);
+    const n = Number(localStorage.getItem(k) || '0') + 1;
+    localStorage.setItem(k, String(n));
+  }catch(_){}
+}
+function trackQuery(q){
+  if(!q) return;
+  try{
+    const map = JSON.parse(localStorage.getItem(STATS.queryKey) || '{}');
+    map[q] = (map[q]||0)+1;
+    localStorage.setItem(STATS.queryKey, JSON.stringify(map));
+  }catch(_){}
+}
+function getTopQueries(n=5){
+  try{
+    const map = JSON.parse(localStorage.getItem(STATS.queryKey) || '{}');
+    return Object.entries(map)
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,n)
+      .map(([q])=>q);
+  }catch(_){ return []; }
+}
+
+
 /* --------- Validador de datos --------- */
 function validateDB(){
   const errs = [];
@@ -93,8 +126,9 @@ function renderHome(){
         <div class="kpi"><b>${totalEntries}</b> playbooks</div>
         <div class="kpi"><b>Offline</b> ready</div>
       </div>
-      <div class="chips">
-        ${CHIPS.map(c=>`<span class="chip" onclick="setQuery('${c}')">#${c}</span>`).join('')}
+            <div class="chips">
+        ${[...new Set([...getTopQueries(5), ...CHIPS])].slice(0,10)
+            .map(c=>`<span class="chip" onclick="setQuery('${c}')">#${c}</span>`).join('')}
       </div>
     </div>
     <div class="card" style="margin:12px 0">
@@ -180,6 +214,7 @@ function renderEntry(id){
   F_WRAPPER.style.display = 'none';
 
   const e = (DB.entries||[]).find(x=>x.id===id);
+  trackEntryView(id);
   if(!e){ V.innerHTML = '<div class="card" style="margin:16px">No encontrado</div>'; return; }
 
   const imgs = (e.imagenes && e.imagenes.length)
@@ -382,6 +417,25 @@ function renderFAQ(){
       <div style="margin-top:10px"><a class="btn" href="#">Volver</a></div>
     </div>`;
 }
+
+/* --------- Atajos de teclado --------- */
+// '/' o 'Ctrl+K' → enfocar búsqueda
+window.addEventListener('keydown',(e)=>{
+  // evitar capturar cuando estás escribiendo en inputs/textarea
+  const tag = (document.activeElement?.tagName||'').toLowerCase();
+  const typing = tag==='input' || tag==='textarea';
+  if(!typing && (e.key==='/' || (e.ctrlKey && (e.key==='k' || e.key==='K')))){
+    e.preventDefault();
+    Q.focus();
+    Q.select();
+  }
+  // Enter global → abre primer resultado si hay resultados visibles
+  if(e.key==='Enter' && document.activeElement!==Q && LAST_RESULTS.length>0){
+    location.hash = '#entry/' + LAST_RESULTS[0].id;
+    route();
+  }
+});
+
 
 /* --------- Listeners --------- */
 BTN_HOME?.addEventListener('click', (e)=>{ e.preventDefault(); location.hash=''; route(); });
