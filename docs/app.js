@@ -78,7 +78,6 @@ function getTopQueries(n=5){
   }catch(_){ return []; }
 }
 
-
 /* --------- Validador de datos --------- */
 function validateDB(){
   const errs = [];
@@ -126,7 +125,7 @@ function renderHome(){
         <div class="kpi"><b>${totalEntries}</b> playbooks</div>
         <div class="kpi"><b>Offline</b> ready</div>
       </div>
-            <div class="chips">
+      <div class="chips">
         ${[...new Set([...getTopQueries(5), ...CHIPS])].slice(0,10)
             .map(c=>`<span class="chip" onclick="setQuery('${c}')">#${c}</span>`).join('')}
       </div>
@@ -214,8 +213,8 @@ function renderEntry(id){
   F_WRAPPER.style.display = 'none';
 
   const e = (DB.entries||[]).find(x=>x.id===id);
-  trackEntryView(id);
   if(!e){ V.innerHTML = '<div class="card" style="margin:16px">No encontrado</div>'; return; }
+  trackEntryView(id);
 
   const imgs = (e.imagenes && e.imagenes.length)
     ? `<div class="gallery">${e.imagenes.map(src=>`<img src="${src}" loading="lazy" alt="captura" onclick="openLB('${src}')">`).join('')}</div>`
@@ -305,7 +304,7 @@ Q.addEventListener('input', ()=>{
   const q = Q.value.trim().toLowerCase();
   if(q) trackQuery(q);
   if(!q){ route(); return; }
-    const results = (DB.entries||[]).filter(e=>{
+  const results = (DB.entries||[]).filter(e=>{
     const tools = (e.herramientas||[]).map(h=>h.nombre).join(' ');
     return (e.problema||'').toLowerCase().includes(q) ||
            (e.causa||'').toLowerCase().includes(q) ||
@@ -364,14 +363,56 @@ function openAdminPanel(){
       <a class="tool-btn" href="#" onclick="exportZipOffline();return false">🗂️ Exportar ZIP (offline)</a>
       <a class="tool-btn" href="#" onclick="quickAddEntry();return false">➕ Añadir entrada rápida</a>
       <a class="tool-btn" href="#" onclick="exportDataBundle();return false">⬇️ Exportar data.bundle.js</a>
-      async function exportZipOffline(){
+    </div>
+    <small style="opacity:.8;display:block;margin-top:6px">Sube el archivo exportado a <code>docs/data.bundle.js</code> en GitHub.</small>
+  `;
+  document.body.appendChild(panel);
+}
+function exportDataBundle(){
+  const js = "window.DB = " + JSON.stringify(DB, null, 2) + ";\n";
+  const blob = new Blob([js], {type:"application/javascript"});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = "data.bundle.js";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+  alert("Archivo generado. Súbelo a docs/data.bundle.js en GitHub.");
+}
+function quickAddEntry(){
+  if(!ADMIN.unlocked) return;
+  const departamento_id = prompt("Departamento (almacenamiento/ram/cpu/gpu/motherboard/psu/cooling/network/os/security):");
+  if(!departamento_id) return;
+  const departamento = (DB.departments.find(d=>d.id===departamento_id)||{}).nombre || departamento_id;
+  const problema   = prompt("Título del problema:");
+  const causa      = prompt("Causa probable:");
+  const nivel      = prompt("Nivel (Básico/Intermedio/Avanzado):","Básico");
+  const riesgo     = prompt("Riesgo (BAJO/MEDIO/ALTO):","BAJO");
+  const tiempo_min = Number(prompt("Tiempo estimado (min):","15")||15);
+
+  const id = (departamento_id+"-"+(problema||"nuevo"))
+              .toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+
+  const solucion = [ "Paso 1: ...", "Paso 2: ...", "Paso 3: ..." ];
+  const entry = { id, departamento_id, departamento, problema, causa, solucion,
+                  verificacion:[], riesgo, nivel, tiempo_min, tags:[], imagenes:[], herramientas:[] };
+
+  DB.entries.push(entry);
+  alert("Entrada agregada: " + id + ". Ahora exporta el data.bundle.js y súbelo a GitHub.");
+  location.hash = "#entry/" + id;
+  route();
+}
+
+/* ===== Export ZIP Offline (top-level, NO dentro del HTML) ===== */
+async function exportZipOffline(){
   if(typeof JSZip==='undefined'){ 
     alert("JSZip no disponible. Revisa el <script> en index.html.");
     return;
   }
   const zip = new JSZip();
 
-  // 1) index.html base (minimal adaptado a local)
+  // 1) index.html base (adaptado a local)
   const idx = `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -433,8 +474,7 @@ select.tool-btn{background:#0d1a26;border:1px solid #123;color:#dfe;padding:5px;
 </body></html>`;
   zip.file('index.html', idx);
 
-  // 2) app.js y data.bundle.js actuales (desde el DOM)
-  // Nota: asumimos que estás ejecutando esta función en el sitio ya cargado con tus archivos vigentes
+  // 2) app.js y data.bundle.js actuales (desde el servidor)
   try{
     const appResp = await fetch('./app.js',{cache:'no-store'});
     zip.file('app.js', await appResp.text());
@@ -450,7 +490,6 @@ select.tool-btn{background:#0d1a26;border:1px solid #123;color:#dfe;padding:5px;
   (DB.entries||[]).forEach(e=> (e.imagenes||[]).forEach(src=> imgSet.add(src)));
   const imgs = [...imgSet]; // p.ej. 'assets/flujo-aire-correcto.png'
 
-  // Descargar cada imagen y agregarla al ZIP conservando ruta
   for(const path of imgs){
     try{
       const r = await fetch(path);
@@ -473,47 +512,6 @@ select.tool-btn{background:#0d1a26;border:1px solid #123;color:#dfe;padding:5px;
   alert("Paquete ZIP generado. Copialo al pendrive y abrí index.html.");
 }
 
-    </div>
-    <small style="opacity:.8;display:block;margin-top:6px">Sube el archivo exportado a <code>docs/data.bundle.js</code> en GitHub.</small>
-  `;
-  document.body.appendChild(panel);
-}
-function exportDataBundle(){
-  const js = "window.DB = " + JSON.stringify(DB, null, 2) + ";\n";
-  const blob = new Blob([js], {type:"application/javascript"});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = "data.bundle.js";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(a.href);
-  alert("Archivo generado. Súbelo a docs/data.bundle.js en GitHub.");
-}
-function quickAddEntry(){
-  if(!ADMIN.unlocked) return;
-  const departamento_id = prompt("Departamento (almacenamiento/ram/cpu/gpu/motherboard/psu/cooling/network/os/security):");
-  if(!departamento_id) return;
-  const departamento = (DB.departments.find(d=>d.id===departamento_id)||{}).nombre || departamento_id;
-  const problema   = prompt("Título del problema:");
-  const causa      = prompt("Causa probable:");
-  const nivel      = prompt("Nivel (Básico/Intermedio/Avanzado):","Básico");
-  const riesgo     = prompt("Riesgo (BAJO/MEDIO/ALTO):","BAJO");
-  const tiempo_min = Number(prompt("Tiempo estimado (min):","15")||15);
-
-  const id = (departamento_id+"-"+(problema||"nuevo"))
-              .toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
-
-  const solucion = [ "Paso 1: ...", "Paso 2: ...", "Paso 3: ..." ];
-  const entry = { id, departamento_id, departamento, problema, causa, solucion,
-                  verificacion:[], riesgo, nivel, tiempo_min, tags:[], imagenes:[], herramientas:[] };
-
-  DB.entries.push(entry);
-  alert("Entrada agregada: " + id + ". Ahora exporta el data.bundle.js y súbelo a GitHub.");
-  location.hash = "#entry/" + id;
-  route();
-}
-
 /* --------- FAQ --------- */
 function renderFAQ(){
   F_WRAPPER.style.display='none';
@@ -532,9 +530,8 @@ function renderFAQ(){
 }
 
 /* --------- Atajos de teclado --------- */
-// '/' o 'Ctrl+K' → enfocar búsqueda
+// '/' o 'Ctrl+K' → enfocar búsqueda | Enter abre primer resultado
 window.addEventListener('keydown',(e)=>{
-  // evitar capturar cuando estás escribiendo en inputs/textarea
   const tag = (document.activeElement?.tagName||'').toLowerCase();
   const typing = tag==='input' || tag==='textarea';
   if(!typing && (e.key==='/' || (e.ctrlKey && (e.key==='k' || e.key==='K')))){
@@ -542,13 +539,11 @@ window.addEventListener('keydown',(e)=>{
     Q.focus();
     Q.select();
   }
-  // Enter global → abre primer resultado si hay resultados visibles
   if(e.key==='Enter' && document.activeElement!==Q && LAST_RESULTS.length>0){
     location.hash = '#entry/' + LAST_RESULTS[0].id;
     route();
   }
 });
-
 
 /* --------- Listeners --------- */
 BTN_HOME?.addEventListener('click', (e)=>{ e.preventDefault(); location.hash=''; route(); });
