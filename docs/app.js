@@ -54,11 +54,18 @@ const STATS = {
 };
 function trackEntryView(id){
   try{
+    // contador por entrada
     const k = STATS.entryKey(id);
     const n = Number(localStorage.getItem(k) || '0') + 1;
     localStorage.setItem(k, String(n));
+    // lista de recientes (sin duplicados, tope 12)
+    const rk = 't3_recent';
+    const arr = JSON.parse(localStorage.getItem(rk) || '[]').filter(x=>x!==id);
+    arr.unshift(id);
+    localStorage.setItem(rk, JSON.stringify(arr.slice(0,12)));
   }catch(_){}
 }
+
 function trackQuery(q){
   if(!q) return;
   try{
