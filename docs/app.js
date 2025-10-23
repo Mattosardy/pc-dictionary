@@ -254,7 +254,7 @@ Q.addEventListener('input', ()=>{
 /* --------- Admin Lite: login + export básico --------- */
 const ADMIN = {
   // Hash SHA-256 de la contraseña "t3admin"
-  hash: "4782469c4e7ae366076c322f3b75578bbaa3458503e2ba02d1211683a93b761e",
+  hash: "b72b6cd4ca51ea2c1a01754e28520358c6dd2162b0ba334b9facf1d7e9c8cf49",
   unlocked: false
 };
 async function sha256Hex(str){
