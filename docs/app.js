@@ -34,7 +34,7 @@ function ensureDBThen(fn) {
 const ICONS = {
   almacenamiento: "💽", ram: "🧠", cpu: "🧩", gpu: "🎮",
   motherboard: "🧷", psu: "🔌", cooling: "🌀", network: "🌐",
-  os: "🪟", security: "🛡️"
+  os: "🖥️", security: "🛡️"
 };
 const QUICK = [
   { label: 'DiskPart clean + GPT',        id: 'almacenamiento-diskpart-clean-gpt' },
