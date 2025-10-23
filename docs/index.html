@@ -40,6 +40,13 @@ ve;flex:1 }
     /* Lightbox */
     .lb-mask{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
     .lb-img{max-width:95vw;max-height:90vh;border-radius:10px;border:2px solid #2bb673}
+    /* ——— Responsive header ——— */
+@media (max-width:700px){
+  header{flex-wrap:wrap; gap:8px}
+  .qwrap{order:3; width:100%; max-width:none; margin:8px 0 0 0}
+  #btn-admin, #btn-home, #btn-faq{order:2}
+}
+
   </style>
 </head>
 <body>
@@ -76,6 +83,7 @@ ve;flex:1 }
 
 <!-- IMPORTANTE: primero los datos, luego la app -->
 <script src="./data.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="./app.js"></script>
 </body>
 </html>
