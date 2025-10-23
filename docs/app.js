@@ -47,12 +47,11 @@ const QUICK = [
 const CHIPS = ['diskpart','xmp','temperatura','ddu','winsock','dns','wifi','trim','nvme'];
 
 /* --------- Estado de búsqueda + telemetría --------- */
-let LAST_RESULTS = []; // se llena en el buscador
+let LAST_RESULTS = [];
 const STATS = {
-  entryKey: (id)=> 't3_stats_entry_'+id,        // vistas por entrada
-  queryKey:       't3_stats_queries'           // mapa {query:count}
+  entryKey: (id)=> 't3_stats_entry_'+id,
+  queryKey:       't3_stats_queries'
 };
-
 function trackEntryView(id){
   try{
     const k = STATS.entryKey(id);
@@ -71,10 +70,7 @@ function trackQuery(q){
 function getTopQueries(n=5){
   try{
     const map = JSON.parse(localStorage.getItem(STATS.queryKey) || '{}');
-    return Object.entries(map)
-      .sort((a,b)=>b[1]-a[1])
-      .slice(0,n)
-      .map(([q])=>q);
+    return Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([q])=>q);
   }catch(_){ return []; }
 }
 
@@ -83,7 +79,6 @@ function validateDB(){
   const errs = [];
   if(!DB || !Array.isArray(DB.departments)) errs.push("departments no es array");
   if(!Array.isArray(DB.entries)) errs.push("entries no es array");
-
   const ids = new Set();
   const deptIds = new Set((DB.departments||[]).map(d=>d.id));
   (DB.entries||[]).forEach(e=>{
@@ -92,7 +87,6 @@ function validateDB(){
     ids.add(e.id);
     if(!deptIds.has(e.departamento_id)) errs.push(`Depto inválido en ${e.id}: ${e.departamento_id}`);
   });
-
   if(errs.length){
     console.error("Validador DB:", errs);
     alert("Errores de datos:\n- " + errs.join("\n- "));
@@ -160,8 +154,6 @@ function renderHome(){
       Verifica que <code>data.bundle.js</code> empiece con <code>window.DB = { ... }</code> y esté antes de <code>app.js</code>.
     </div>`);
 }
-
-
 function setQuery(q){ Q.value = q; Q.dispatchEvent(new Event('input')); }
 
 /* --------- Departamento (con filtros + orden) --------- */
@@ -173,7 +165,6 @@ function renderDept(id){
   F_NIVEL.value  = F_NIVEL.value  || '';
   F_RIESGO.value = F_RIESGO.value || '';
 
-  // Orden: Básico → Intermedio → Avanzado; si empatan, por riesgo BAJO→ALTO y luego alfabético
   const ordenNivel  = { "básico":0, "basico":0, "intermedio":1, "avanzado":2 };
   const ordenRiesgo = { "bajo":0, "medio":1, "alto":2 };
   listBase.sort((a,b)=>{
@@ -254,7 +245,6 @@ function renderEntry(id){
         ${e.comandos?.length?`<button class="btn" onclick='copyCommands(${JSON.stringify(e.comandos||[])})'>Copiar comandos</button>`:''}
       </div>
 
-      <!-- Comentarios (localStorage) -->
       <div class="card" style="margin-top:10px">
         <b>Comentarios</b>
         <textarea id="fb-${e.id}" rows="3" style="width:100%;background:#0d1a26;color:#dfe;border:1px solid #123;border-radius:8px;padding:8px" placeholder="Deja una nota técnica..."></textarea>
@@ -265,7 +255,6 @@ function renderEntry(id){
         <div id="fb-list-${e.id}" style="margin-top:8px"></div>
       </div>
     </div>`;
-
   renderFB(e.id);
 }
 
@@ -274,7 +263,6 @@ function copyCommands(list){
   const txt = Array.isArray(list)?list.join('\n'):String(list||'');
   navigator.clipboard.writeText(txt).then(()=>alert('Copiado al portapapeles'));
 }
-
 /* Lightbox */
 function openLB(src){
   const m = document.createElement('div');
@@ -283,8 +271,7 @@ function openLB(src){
   m.addEventListener('click', ()=> document.body.removeChild(m));
   document.body.appendChild(m);
 }
-
-/* Comentarios: guardar + render (localStorage) */
+/* Comentarios */
 function saveFB(id){
   const k = 't3_fb_'+id;
   const ta = document.getElementById('fb-'+id);
@@ -310,7 +297,7 @@ function renderFB(id){
     </div>`).join('') || '<small>Sin comentarios aún.</small>';
 }
 
-/* --------- Búsqueda simple --------- */
+/* --------- Búsqueda --------- */
 Q.addEventListener('input', ()=>{
   const q = Q.value.trim().toLowerCase();
   if(q) trackQuery(q);
@@ -324,7 +311,6 @@ Q.addEventListener('input', ()=>{
            tools.toLowerCase().includes(q);
   });
   LAST_RESULTS = results;
-
   V.innerHTML = `
     <div class="card" style="margin:16px"><div><b>Resultados</b> <small>(${results.length})</small></div></div>
     <div class="list">${results.map(e=>`
@@ -338,10 +324,9 @@ Q.addEventListener('input', ()=>{
     </div>`;
 });
 
-/* --------- Admin Lite: login + export --------- */
+/* --------- Admin Lite --------- */
 const ADMIN = {
-  // Hash SHA-256 de la contraseña "t3admin" (cámbialo por el tuyo)
-  hash: "72763fe305fcf07f73a3b87fd08f37409f6647cde4c42da84b762ebe030c3d61",
+  hash: "72763fe305fcf07f73a3b87fd08f37409f6647cde4c42da84b762ebe030c3d61", // SHA-256 de "t3admin"
   unlocked: false
 };
 async function sha256Hex(str){
@@ -356,22 +341,17 @@ async function adminLogin(){
   if(h === ADMIN.hash){
     ADMIN.unlocked = true;
     alert("Acceso concedido.");
-    // marca el botón en el header
     if (BTN_ADMIN) BTN_ADMIN.textContent = 'Admin ✅';
     openAdminPanel();
-    if(!location.hash) renderHome(); // muestra bloque Admin en home
+    if(!location.hash) renderHome();
   } else {
     alert("Contraseña incorrecta.");
   }
 }
-
 function openAdminPanel(){
   if(!ADMIN.unlocked) return alert("Autenticación requerida.");
-
-  // si ya existe, no duplicar
   let panel = document.getElementById('admin-panel');
-  if(panel){ panel.remove(); } // recreamos limpio
-
+  if(panel){ panel.remove(); }
   panel = document.createElement('div');
   panel.id = 'admin-panel';
   panel.style = "position:fixed;right:12px;bottom:12px;background:#0d1a26;border:1px solid #0f7a44;padding:12px;border-radius:12px;z-index:9999;min-width:300px;max-width:92vw;box-shadow:0 6px 28px rgba(0,0,0,.5)";
@@ -392,21 +372,14 @@ function openAdminPanel(){
   `;
   document.body.appendChild(panel);
 }
-
-function closeAdminPanel(){
-  const p = document.getElementById('admin-panel');
-  if(p) p.remove();
-}
-
+function closeAdminPanel(){ const p = document.getElementById('admin-panel'); if(p) p.remove(); }
 function logoutAdmin(){
   ADMIN.unlocked = false;
   closeAdminPanel();
   alert("Sesión de administrador cerrada.");
   if (BTN_ADMIN) BTN_ADMIN.textContent = 'Admin';
-  if(!location.hash) renderHome(); // oculta bloque Admin en home
+  if(!location.hash) renderHome();
 }
-
-
 function exportDataBundle(){
   const js = "window.DB = " + JSON.stringify(DB, null, 2) + ";\n";
   const blob = new Blob([js], {type:"application/javascript"});
@@ -429,35 +402,26 @@ function quickAddEntry(){
   const nivel      = prompt("Nivel (Básico/Intermedio/Avanzado):","Básico");
   const riesgo     = prompt("Riesgo (BAJO/MEDIO/ALTO):","BAJO");
   const tiempo_min = Number(prompt("Tiempo estimado (min):","15")||15);
-
-  const id = (departamento_id+"-"+(problema||"nuevo"))
-              .toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
-
+  const id = (departamento_id+"-"+(problema||"nuevo")).toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
   const solucion = [ "Paso 1: ...", "Paso 2: ...", "Paso 3: ..." ];
   const entry = { id, departamento_id, departamento, problema, causa, solucion,
                   verificacion:[], riesgo, nivel, tiempo_min, tags:[], imagenes:[], herramientas:[] };
-
   DB.entries.push(entry);
   alert("Entrada agregada: " + id + ". Ahora exporta el data.bundle.js y súbelo a GitHub.");
   location.hash = "#entry/" + id;
   route();
 }
 
-/* ===== Export ZIP Offline (top-level, NO dentro del HTML) ===== */
+/* ===== Export ZIP Offline ===== */
 async function exportZipOffline(){
   if(typeof JSZip==='undefined'){ 
     alert("JSZip no disponible. Revisa el <script> en index.html.");
     return;
   }
   const zip = new JSZip();
-
-  // 1) index.html base (adaptado a local)
   const idx = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TelecomT3 - Offline</title>
-<link rel="icon" href="data:,">
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TelecomT3 - Offline</title><link rel="icon" href="data:,">
 <style>
 body{font-family:system-ui,Segoe UI,Roboto,sans-serif;margin:0;background:#08121b;color:#dfe}
 header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#0b1a25;position:sticky;top:0;z-index:1000}
@@ -483,63 +447,46 @@ pre{background:#0a1c27;border:1px solid #123;padding:6px;border-radius:8px;overf
 .badge-dept{font-size:22px;margin-right:6px}
 #filters{display:none;gap:8px;margin:10px 16px}
 select.tool-btn{background:#0d1a26;border:1px solid #123;color:#dfe;padding:5px;border-radius:8px}
-/* Lightbox */
 .lb-mask{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
 .lb-img{max-width:95vw;max-height:90vh;border-radius:10px;border:2px solid #2bb673}
-/* responsive */
 @media (max-width:700px){header{flex-wrap:wrap;gap:8px}.qwrap{order:3;width:100%;max-width:none;margin:8px 0 0 0}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header>
-    <h1>TelecomT3 (Offline)</h1>
-    <div class="qwrap"><input id="q" placeholder="Buscar"></div>
-    <a id="btn-admin" class="btn" href="#" style="margin-left:auto">Admin</a>
-    <a id="btn-home" class="btn" href="#" style="margin-left:8px">Portada</a>
-  </header>
-  <div id="filters">
-    <select id="f-nivel" class="tool-btn">
-      <option value="">Nivel: Todos</option><option>Básico</option><option>Intermedio</option><option>Avanzado</option>
-    </select>
-    <select id="f-riesgo" class="tool-btn">
-      <option value="">Riesgo: Todos</option><option>BAJO</option><option>MEDIO</option><option>ALTO</option>
-    </select>
-  </div>
-  <div id="view"></div>
+</style></head>
+<body><div class="wrap">
+<header><h1>TelecomT3 (Offline)</h1>
+<div class="qwrap"><input id="q" placeholder="Buscar"></div>
+<a id="btn-admin" class="btn" href="#" style="margin-left:auto">Admin</a>
+<a id="btn-home" class="btn" href="#" style="margin-left:8px">Portada</a></header>
+<div id="filters">
+<select id="f-nivel" class="tool-btn"><option value="">Nivel: Todos</option><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select>
+<select id="f-riesgo" class="tool-btn"><option value="">Riesgo: Todos</option><option>BAJO</option><option>MEDIO</option><option>ALTO</option></select>
 </div>
+<div id="view"></div></div>
 <script src="./data.bundle.js"></script>
 <script src="./app.js"></script>
 </body></html>`;
   zip.file('index.html', idx);
 
-  // 2) app.js y data.bundle.js actuales (desde el servidor)
   try{
     const appResp = await fetch('./app.js',{cache:'no-store'});
     zip.file('app.js', await appResp.text());
   }catch(_){ alert("No pude leer app.js desde el servidor."); }
-
   try{
     const dataResp = await fetch('./data.bundle.js',{cache:'no-store'});
     zip.file('data.bundle.js', await dataResp.text());
   }catch(_){ alert("No pude leer data.bundle.js desde el servidor."); }
 
-  // 3) Imágenes referenciadas en el DB (solo las que existan)
   const imgSet = new Set();
   (DB.entries||[]).forEach(e=> (e.imagenes||[]).forEach(src=> imgSet.add(src)));
-  const imgs = [...imgSet]; // p.ej. 'assets/flujo-aire-correcto.png'
-
-  for(const path of imgs){
+  for(const path of imgSet){
     try{
       const r = await fetch(path);
       if(!r.ok) continue;
       const b = await r.blob();
       const arrbuf = await b.arrayBuffer();
-      zip.file(path, arrbuf); // respeta subcarpeta assets/
+      zip.file(path, arrbuf);
     }catch(_){}
   }
 
-  // 4) Generar y descargar
   const blob = await zip.generateAsync({type:"blob"});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -569,57 +516,34 @@ function renderFAQ(){
 }
 
 /* --------- Atajos de teclado --------- */
-// '/' o 'Ctrl+K' → enfocar búsqueda | Enter abre primer resultado
 // '/' o 'Ctrl+K' → enfocar búsqueda | Enter abre primer resultado | ESC cierra panel admin
 window.addEventListener('keydown',(e)=>{
   const tag = (document.activeElement?.tagName||'').toLowerCase();
   const typing = tag==='input' || tag==='textarea';
-
-  // Atajo: foco búsqueda
   if(!typing && (e.key==='/' || (e.ctrlKey && (e.key==='k' || e.key==='K')))){
-    e.preventDefault();
-    Q.focus();
-    Q.select();
-    return;
+    e.preventDefault(); Q.focus(); Q.select(); return;
   }
-
-  // Atajo: abrir primer resultado
   if(e.key==='Enter' && document.activeElement!==Q && LAST_RESULTS.length>0){
-    location.hash = '#entry/' + LAST_RESULTS[0].id;
-    route();
-    return;
+    location.hash = '#entry/' + LAST_RESULTS[0].id; route(); return;
   }
-
-  // Atajo: cerrar panel admin
   if(e.key === 'Escape'){
     const p = document.getElementById('admin-panel');
     if(p){ closeAdminPanel(); }
   }
 });
 
-
 /* --------- Listeners --------- */
 BTN_HOME?.addEventListener('click', (e)=>{ e.preventDefault(); location.hash=''; route(); });
 BTN_ADMIN?.addEventListener('click', (e)=>{
   e.preventDefault();
-  if(!ADMIN.unlocked){
-    adminLogin();
-    return;
-  }
+  if(!ADMIN.unlocked){ adminLogin(); return; }
   const p = document.getElementById('admin-panel');
   p ? closeAdminPanel() : openAdminPanel();
 });
-BTN_ADMIN?.addEventListener('click', (e)=>{
-  e.preventDefault();
-  if(!ADMIN.unlocked){
-    // si no está autenticado, pide login
-    adminLogin();
-    return;
-  }
-  // si ya está autenticado: alterna abrir/cerrar el panel
-  const p = document.getElementById('admin-panel');
-  p ? closeAdminPanel() : openAdminPanel();
-});
-
 window.addEventListener('hashchange', ()=>ensureDBThen(route));
-window.addEventListener('load', ()=> ensureDBThen(()=>{ validateDB(); route(); }));
+window.addEventListener('load', ()=> ensureDBThen(()=>{ 
+  validateDB(); 
+  // refresca etiqueta del botón admin si ya estaba logueado (sesión previa)
+  if (BTN_ADMIN) BTN_ADMIN.textContent = ADMIN.unlocked ? 'Admin ✅' : 'Admin';
+  route(); 
+}));
