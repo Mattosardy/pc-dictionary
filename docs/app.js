@@ -556,22 +556,48 @@ function renderFAQ(){
 
 /* --------- Atajos de teclado --------- */
 // '/' o 'Ctrl+K' → enfocar búsqueda | Enter abre primer resultado
+// '/' o 'Ctrl+K' → enfocar búsqueda | Enter abre primer resultado | ESC cierra panel admin
 window.addEventListener('keydown',(e)=>{
   const tag = (document.activeElement?.tagName||'').toLowerCase();
   const typing = tag==='input' || tag==='textarea';
+
+  // Atajo: foco búsqueda
   if(!typing && (e.key==='/' || (e.ctrlKey && (e.key==='k' || e.key==='K')))){
     e.preventDefault();
     Q.focus();
     Q.select();
+    return;
   }
+
+  // Atajo: abrir primer resultado
   if(e.key==='Enter' && document.activeElement!==Q && LAST_RESULTS.length>0){
     location.hash = '#entry/' + LAST_RESULTS[0].id;
     route();
+    return;
+  }
+
+  // Atajo: cerrar panel admin
+  if(e.key === 'Escape'){
+    const p = document.getElementById('admin-panel');
+    if(p){ closeAdminPanel(); }
   }
 });
+
 
 /* --------- Listeners --------- */
 BTN_HOME?.addEventListener('click', (e)=>{ e.preventDefault(); location.hash=''; route(); });
 BTN_ADMIN?.addEventListener('click', (e)=>{ e.preventDefault(); ADMIN.unlocked ? openAdminPanel() : adminLogin(); });
+BTN_ADMIN?.addEventListener('click', (e)=>{
+  e.preventDefault();
+  if(!ADMIN.unlocked){
+    // si no está autenticado, pide login
+    adminLogin();
+    return;
+  }
+  // si ya está autenticado: alterna abrir/cerrar el panel
+  const p = document.getElementById('admin-panel');
+  p ? closeAdminPanel() : openAdminPanel();
+});
+
 window.addEventListener('hashchange', ()=>ensureDBThen(route));
 window.addEventListener('load', ()=> ensureDBThen(()=>{ validateDB(); route(); }));
