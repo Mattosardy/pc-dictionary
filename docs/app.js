@@ -30,7 +30,7 @@ function ensureDBThen(fn) {
   }, 50);
 }
 
-/* --------- Iconos y accesos rápidos (opcional) --------- */
+/* --------- Iconos y accesos rápidos --------- */
 const ICONS = {
   almacenamiento: "💽", ram: "🧠", cpu: "🧩", gpu: "🎮",
   motherboard: "🧷", psu: "🔌", cooling: "🌀", network: "🌐",
@@ -46,12 +46,12 @@ const QUICK = [
 ];
 const CHIPS = ['diskpart','xmp','temperatura','ddu','winsock','dns','wifi','trim','nvme'];
 
+/* --------- Validador de datos --------- */
 function validateDB(){
   const errs = [];
   if(!DB || !Array.isArray(DB.departments)) errs.push("departments no es array");
   if(!Array.isArray(DB.entries)) errs.push("entries no es array");
 
-  // IDs únicos y deptos válidos
   const ids = new Set();
   const deptIds = new Set((DB.departments||[]).map(d=>d.id));
   (DB.entries||[]).forEach(e=>{
@@ -74,8 +74,7 @@ function route(){
   const [kind, id] = hash.split('/');
   if(kind==='dept')  return renderDept(id);
   if(kind==='entry') return renderEntry(id);
-  if(kind==='faq')  return renderFAQ();
-
+  if(kind==='faq')   return renderFAQ();
   return renderHome();
 }
 
@@ -121,7 +120,7 @@ function renderHome(){
 }
 function setQuery(q){ Q.value = q; Q.dispatchEvent(new Event('input')); }
 
-/* --------- Departamento (con filtros) --------- */
+/* --------- Departamento (con filtros + orden) --------- */
 function renderDept(id){
   const dept     = (DB.departments||[]).find(d=>d.id===id);
   const listBase = (DB.entries||[]).filter(e=>e.departamento_id===id);
@@ -130,20 +129,19 @@ function renderDept(id){
   F_NIVEL.value  = F_NIVEL.value  || '';
   F_RIESGO.value = F_RIESGO.value || '';
 
-// Orden: Básico → Intermedio → Avanzado; si empatan, por riesgo BAJO→ALTO y luego alfabético
-const ordenNivel  = { "básico":0, "basico":0, "intermedio":1, "avanzado":2 };
-const ordenRiesgo = { "bajo":0, "medio":1, "alto":2 };
-listBase.sort((a,b)=>{
-  const na = ordenNivel[(a.nivel||"").toLowerCase()] ?? 9;
-  const nb = ordenNivel[(b.nivel||"").toLowerCase()] ?? 9;
-  if(na!==nb) return na-nb;
-  const ra = ordenRiesgo[(a.riesgo||"").toLowerCase()] ?? 9;
-  const rb = ordenRiesgo[(b.riesgo||"").toLowerCase()] ?? 9;
-  if(ra!==rb) return ra-rb;
-  return (a.problema||"").localeCompare(b.problema||"");
-});
+  // Orden: Básico → Intermedio → Avanzado; si empatan, por riesgo BAJO→ALTO y luego alfabético
+  const ordenNivel  = { "básico":0, "basico":0, "intermedio":1, "avanzado":2 };
+  const ordenRiesgo = { "bajo":0, "medio":1, "alto":2 };
+  listBase.sort((a,b)=>{
+    const na = ordenNivel[(a.nivel||"").toLowerCase()] ?? 9;
+    const nb = ordenNivel[(b.nivel||"").toLowerCase()] ?? 9;
+    if(na!==nb) return na-nb;
+    const ra = ordenRiesgo[(a.riesgo||"").toLowerCase()] ?? 9;
+    const rb = ordenRiesgo[(b.riesgo||"").toLowerCase()] ?? 9;
+    if(ra!==rb) return ra-rb;
+    return (a.problema||"").localeCompare(b.problema||"");
+  });
 
-  
   function applyFilters(){
     let list = listBase.slice();
     const nv = (F_NIVEL.value||'').trim().toLowerCase();
@@ -210,7 +208,20 @@ function renderEntry(id){
         <button class="btn" onclick="copyCommands(${JSON.stringify(e.solucion||[])})">Copiar pasos</button>
         ${e.comandos?.length?`<button class="btn" onclick='copyCommands(${JSON.stringify(e.comandos||[])})'>Copiar comandos</button>`:''}
       </div>
+
+      <!-- Comentarios (localStorage) -->
+      <div class="card" style="margin-top:10px">
+        <b>Comentarios</b>
+        <textarea id="fb-${e.id}" rows="3" style="width:100%;background:#0d1a26;color:#dfe;border:1px solid #123;border-radius:8px;padding:8px" placeholder="Deja una nota técnica..."></textarea>
+        <div style="margin-top:6px">
+          <button class="btn" onclick="saveFB('${e.id}')">Guardar</button>
+          <small id="fb-msg-${e.id}" style="margin-left:8px;opacity:.8"></small>
+        </div>
+        <div id="fb-list-${e.id}" style="margin-top:8px"></div>
+      </div>
     </div>`;
+
+  renderFB(e.id);
 }
 
 /* --------- Utilidades --------- */
@@ -228,7 +239,33 @@ function openLB(src){
   document.body.appendChild(m);
 }
 
-/* --------- Búsqueda simple (estable) --------- */
+/* Comentarios: guardar + render (localStorage) */
+function saveFB(id){
+  const k = 't3_fb_'+id;
+  const ta = document.getElementById('fb-'+id);
+  const msg = document.getElementById('fb-msg-'+id);
+  if(!ta || !ta.value.trim()) return;
+  const arr = JSON.parse(localStorage.getItem(k) || '[]');
+  arr.unshift({ts: new Date().toISOString(), txt: ta.value.trim()});
+  localStorage.setItem(k, JSON.stringify(arr));
+  ta.value = '';
+  msg.textContent = 'Guardado ✓';
+  setTimeout(()=>msg.textContent='',1200);
+  renderFB(id);
+}
+function renderFB(id){
+  const k = 't3_fb_'+id;
+  const list = JSON.parse(localStorage.getItem(k) || '[]');
+  const el = document.getElementById('fb-list-'+id);
+  if(!el) return;
+  el.innerHTML = list.slice(0,10).map(i=>`
+    <div class="entry">
+      <small>${new Date(i.ts).toLocaleString()}</small>
+      <div>${i.txt}</div>
+    </div>`).join('') || '<small>Sin comentarios aún.</small>';
+}
+
+/* --------- Búsqueda simple --------- */
 Q.addEventListener('input', ()=>{
   const q = Q.value.trim().toLowerCase();
   if(!q){ route(); return; }
@@ -253,9 +290,9 @@ Q.addEventListener('input', ()=>{
     </div>`;
 });
 
-/* --------- Admin Lite: login + export básico --------- */
+/* --------- Admin Lite: login + export --------- */
 const ADMIN = {
-  // Hash SHA-256 de la contraseña "t3admin"
+  // Hash SHA-256 de la contraseña "t3admin" (cámbialo por el tuyo)
   hash: "72763fe305fcf07f73a3b87fd08f37409f6647cde4c42da84b762ebe030c3d61",
   unlocked: false
 };
@@ -329,12 +366,14 @@ function quickAddEntry(){
   route();
 }
 
+/* --------- FAQ --------- */
 function renderFAQ(){
   F_WRAPPER.style.display='none';
   const faq = [
     {q:"¿Puedo usar esto offline?", a:"Sí. Todo está embebido; si cargó una vez, queda en caché del navegador."},
     {q:"¿Cómo agrego un caso nuevo?", a:"Botón Admin → Añadir entrada rápida → Exportar data.bundle.js y subir a GitHub."},
-    {q:"¿Cómo reporto un error?", a:"Usa Comentarios en la entrada o exporta la data y adjunta en un issue."}
+    {q:"¿Cómo cambio la contraseña Admin?", a:"Genera un SHA-256 en la consola (helper en app.js) y sustituye ADMIN.hash."},
+    {q:"¿Cómo reporto un error?", a:"Usa Comentarios en la entrada o abre un issue con el data.bundle exportado."}
   ];
   V.innerHTML = `
     <div class="card" style="margin:16px">
@@ -343,7 +382,6 @@ function renderFAQ(){
       <div style="margin-top:10px"><a class="btn" href="#">Volver</a></div>
     </div>`;
 }
-
 
 /* --------- Listeners --------- */
 BTN_HOME?.addEventListener('click', (e)=>{ e.preventDefault(); location.hash=''; route(); });
