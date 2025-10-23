@@ -74,6 +74,8 @@ function route(){
   const [kind, id] = hash.split('/');
   if(kind==='dept')  return renderDept(id);
   if(kind==='entry') return renderEntry(id);
+  if(kind==='faq')  return renderFAQ();
+
   return renderHome();
 }
 
@@ -326,6 +328,22 @@ function quickAddEntry(){
   location.hash = "#entry/" + id;
   route();
 }
+
+function renderFAQ(){
+  F_WRAPPER.style.display='none';
+  const faq = [
+    {q:"¿Puedo usar esto offline?", a:"Sí. Todo está embebido; si cargó una vez, queda en caché del navegador."},
+    {q:"¿Cómo agrego un caso nuevo?", a:"Botón Admin → Añadir entrada rápida → Exportar data.bundle.js y subir a GitHub."},
+    {q:"¿Cómo reporto un error?", a:"Usa Comentarios en la entrada o exporta la data y adjunta en un issue."}
+  ];
+  V.innerHTML = `
+    <div class="card" style="margin:16px">
+      <h3>Preguntas Frecuentes</h3>
+      ${faq.map(i=>`<details><summary><b>${i.q}</b></summary><p>${i.a}</p></details>`).join('')}
+      <div style="margin-top:10px"><a class="btn" href="#">Volver</a></div>
+    </div>`;
+}
+
 
 /* --------- Listeners --------- */
 BTN_HOME?.addEventListener('click', (e)=>{ e.preventDefault(); location.hash=''; route(); });
