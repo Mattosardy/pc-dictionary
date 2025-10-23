@@ -1,127 +1,116 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diccionario de Reparación - TelecomT3</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Diccionario de Reparación — TelecomT3</title>
+  <link rel="icon" href="data:,"/>
+
+  <!-- JSZip (para export ZIP admin) -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
+
   <style>
-    body{font-family:system-ui,Segoe UI,Roboto,sans-serif;margin:0;background:#08121b;color:#dfe;line-height:1.5}
-    header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:#0b1a25;position:sticky;top:0;z-index:1000;}
-    header h1{font-size:16px;margin:0;color:#2bb673}
+    :root{
+      --bg:#08121b; --panel:#0d1a26; --line:#123; --brand:#2bb673; --muted:#9fb4c7;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:#dfe;font-family:system-ui,Segoe UI,Roboto,sans-serif}
+    header{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#0b1a25;position:sticky;top:0;z-index:1000}
     .wrap{max-width:1100px;margin:0 auto}
-    .qwrap{ position:relati.qwrap{
-  position:relative;
-  flex:1;
-  max-width:600px;   /* Limita el ancho de la barra */
-  margin-right:12px; /* deja espacio antes del botón */
-}
-ve;flex:1 }
-    input{padding:8px 12px;border:none;border-radius:8px;width:100%;background:#0d1a26;color:#dfe}
-    a.btn,button.btn{background:#124;border:none;border-radius:8px;color:#dfe;padding:6px 10px;cursor:pointer;text-decoration:none}
-    a.btn:hover,button.btn:hover{background:#2bb673;color:#000}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin:16px}
-    .card{background:#0d1a26;border:1px solid #123;padding:12px;border-radius:10px}
-    .entry{background:#0d1a26;border:1px solid #123;border-radius:10px;padding:8px;margin:8px}
-    .tools,.gallery{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-    .tool-btn{background:#113;border-radius:8px;padding:5px 10px;text-decoration:none;color:#dfe;border:1px solid #124}
-    .tool-btn:hover{background:#2bb673;color:#000}
-    img{max-width:100%;border-radius:10px;cursor:pointer}
-    pre{background:#0a1c27;border:1px solid #123;padding:6px;border-radius:8px;overflow:auto;color:#cfc}
-    .hero{margin:10px;background:linear-gradient(135deg,#0b1e2b,#0f2d3f);border:1px solid #103049;border-radius:14px;padding:14px 16px}
-    .hero h1{margin:0 0 6px 0;font-size:20px}
-    .kpis{display:flex;gap:14px;flex-wrap:wrap}
-    .kpi{background:#0d1a26;border:1px solid #113049;border-radius:10px;padding:6px 10px}
-    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-    .chip{border:1px solid #2bb673;background:#0b1e2b;padding:6px 10px;border-radius:16px;cursor:pointer}
-    .grid .card:hover{transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.25)}
-    .badge-dept{font-size:22px; margin-right:6px}
+    .brand{color:var(--brand);font-weight:700}
+    .qwrap{position:relative;flex:1;max-width:680px;margin:0 8px}
+    input[type="search"]#q{padding:10px 12px;border:none;border-radius:10px;width:100%;background:#0d1a26;color:#dfe}
+    a.btn,button.btn{background:#124;border:none;border-radius:10px;color:#dfe;padding:8px 12px;cursor:pointer;text-decoration:none}
+    a.btn:hover,button.btn:hover{background:var(--brand);color:#000}
+
+    /* Filtros */
     #filters{display:none;gap:8px;margin:10px 16px}
-    select.tool-btn{background:#0d1a26;border:1px solid #123;color:#dfe;padding:5px;border-radius:8px}
+    select.tool-btn{background:#0d1a26;border:1px solid var(--line);color:#dfe;padding:6px;border-radius:10px}
+
+    /* ===== Home Pro ===== */
+    .hero{ margin:10px; padding:16px; border-radius:16px;
+      background: linear-gradient(135deg,#0b1e2b,#0e2433 50%, #112d3f);
+      border:1px solid #103049;
+    }
+    .hero-top { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .hero-title { display:flex; align-items:center; gap:10px; }
+    .hero-title h1 { margin:0; font-size:22px; line-height:1.2; }
+    .kpis{ display:flex; gap:10px; flex-wrap:wrap; }
+    .kpi{ background:var(--panel); border:1px solid #113049; border-radius:12px; padding:8px 12px; min-width:120px }
+    .kpi small{ display:block; color:var(--muted); font-weight:600; }
+    .kpi b{ font-size:18px }
+    .toolbar { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px }
+    .btn-ghost { background:transparent; border:1px dashed var(--line); color:#dfe; padding:6px 10px; border-radius:10px; text-decoration:none }
+    .btn-ghost:hover { border-color:var(--brand); color:#000; background:var(--brand) }
+    .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px }
+    .chip { background:#0d1a26; border:1px solid #103049; padding:6px 10px; border-radius:999px; cursor:pointer }
+    .chip:hover{ background:var(--brand); color:#000 }
+    .badge { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:#0f1e2a; border:1px solid #103049; font-size:18px }
+
+    .section { margin:16px 10px }
+    .section h3 { margin:0 0 8px 0; font-size:16px; color:#cfe }
+    .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    .tool-btn{background:#113;border-radius:8px;padding:6px 10px;text-decoration:none;color:#dfe;border:1px solid #124}
+    .tool-btn:hover{background:var(--brand);color:#000}
+
+    .list-compact { display:flex; flex-direction:column; gap:8px }
+    .item-compact { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 10px; display:flex; justify-content:space-between; gap:8px }
+    .item-compact small { color:var(--muted) }
+
+    .grid-depts { display:grid; gap:10px; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); margin:10px }
+    .card-dept { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px; display:flex; gap:10px; align-items:center; justify-content:space-between }
+    .card-dept .left { display:flex; gap:10px; align-items:center }
+
+    .card{background:#0d1a26;border:1px solid var(--line);padding:12px;border-radius:10px;margin:10px}
+    .entry{background:#0d1a26;border:1px solid var(--line);border-radius:10px;padding:8px;margin:8px}
+    .gallery{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    img{max-width:100%;border-radius:10px;cursor:pointer}
+    pre{background:#0a1c27;border:1px solid var(--line);padding:6px;border-radius:8px;overflow:auto;color:#cfc}
+
     /* Lightbox */
     .lb-mask{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
-    .lb-img{max-width:95vw;max-height:90vh;border-radius:10px;border:2px solid #2bb673}
-    /* ——— Responsive header ——— */
-@media (max-width:700px){
-  header{flex-wrap:wrap; gap:8px}
-  .qwrap{order:3; width:100%; max-width:none; margin:8px 0 0 0}
-  #btn-admin, #btn-home, #btn-faq{order:2}
-}
+    .lb-img{max-width:95vw;max-height:90vh;border-radius:10px;border:2px solid var(--brand)}
 
-/* === Layout Home Pro === */
-:root{
-  --bg:#08121b; --panel:#0d1a26; --line:#123; --brand:#2bb673; --muted:#9fb4c7;
-}
-.hero{ margin:10px; padding:16px; border-radius:16px;
-  background: linear-gradient(135deg,#0b1e2b,#0e2433 50%, #112d3f);
-  border:1px solid #103049;
-}
-.hero-top { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-.hero-title { display:flex; align-items:center; gap:10px; }
-.hero-title h1 { margin:0; font-size:22px; line-height:1.2; }
-.kpis{ display:flex; gap:10px; flex-wrap:wrap; }
-.kpi{ background:var(--panel); border:1px solid #113049; border-radius:12px; padding:8px 12px; min-width:120px }
-.kpi small{ display:block; color:var(--muted); font-weight:600; }
-.kpi b{ font-size:18px }
-
-.toolbar { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px }
-.btn-ghost { background:transparent; border:1px dashed var(--line); color:#dfe; padding:6px 10px; border-radius:10px; text-decoration:none }
-.btn-ghost:hover { border-color:var(--brand); color:#000; background:var(--brand) }
-
-.section { margin:16px 0 }
-.section h3 { margin:0 0 8px 0; font-size:16px; color:#cfe }
-.grid-depts { display:grid; gap:10px; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); }
-.card-dept { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px; display:flex; gap:10px; align-items:center; justify-content:space-between }
-.card-dept .left { display:flex; gap:10px; align-items:center }
-.badge { width:36px; height:36px; border-radius:10px; display:grid; place-items:center; background:#0f1e2a; border:1px solid #103049; font-size:18px }
-
-.chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px }
-.chip { background:#0d1a26; border:1px solid #103049; padding:6px 10px; border-radius:999px; cursor:pointer }
-.chip:hover{ background:var(--brand); color:#000 }
-
-.list-compact { display:flex; flex-direction:column; gap:8px }
-.item-compact { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px 10px; display:flex; justify-content:space-between; gap:8px }
-.item-compact small { color:var(--muted) }
-
-.footer-muted{ color:#8ba0b4; font-size:12px; text-align:center; margin:18px 0 }
-
-    
+    .footer-muted{ color:#8ba0b4; font-size:12px; text-align:center; margin:18px 0 }
+    @media (max-width:700px){.qwrap{max-width:none}}
   </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>TelecomT3</h1>
-    <div class="qwrap">
-      <input id="q" placeholder="Buscar (ej: diskpart, XMP, DNS)">
+  <div class="wrap">
+    <header>
+      <div class="brand">TelecomT3</div>
+      <div class="qwrap"><input id="q" type="search" placeholder="Buscar (ej: diskpart, XMP, DNS)"/></div>
+      <a id="btn-home"  class="btn" href="#">Portada</a>
+      <a id="btn-admin" class="btn" href="#">Admin</a>
+      <a id="btn-faq"   class="btn" href="#faq">FAQ</a>
+    </header>
+
+    <div id="filters">
+      <select id="f-nivel" class="tool-btn">
+        <option value="">Nivel: Todos</option><option>Básico</option><option>Intermedio</option><option>Avanzado</option>
+      </select>
+      <select id="f-riesgo" class="tool-btn">
+        <option value="">Riesgo: Todos</option><option>BAJO</option><option>MEDIO</option><option>ALTO</option>
+      </select>
     </div>
-   
-    <a id="btn-home"  class="btn" href="#" style="margin-left:8px">Portada</a>
-    <a id="btn-admin" class="btn" href="#" style="margin-left:auto">Admin</a>
-    <a id="btn-faq" class="btn" href="#faq" style="margin-left:8px">FAQ</a>
 
-  </header>
-
-  <div id="filters">
-    <select id="f-nivel" class="tool-btn">
-      <option value="">Nivel: Todos</option>
-      <option>Básico</option>
-      <option>Intermedio</option>
-      <option>Avanzado</option>
-    </select>
-    <select id="f-riesgo" class="tool-btn">
-      <option value="">Riesgo: Todos</option>
-      <option>BAJO</option>
-      <option>MEDIO</option>
-      <option>ALTO</option>
-    </select>
+    <div id="view"></div>
   </div>
 
-  <div id="view"></div>
-</div>
+  <!-- Carga de datos SIEMPRE antes de app.js -->
+  <script src="./data.bundle.js"></script>
 
-<!-- IMPORTANTE: primero los datos, luego la app -->
-<script src="./data.bundle.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="./app.js"></script>
+  <!-- Mostrador de errores amigable (si algo rompe JS, no te deja a oscuras) -->
+  <script>
+    window.addEventListener('error', (e)=>{
+      const V = document.getElementById('view');
+      if(!V) return;
+      V.innerHTML = '<div class="card"><b>Error en JavaScript:</b><br><code>'
+        + String(e.message || e.error || e.filename || 'desconocido')
+        + '</code><br><small>Revisá la consola (F12) para la línea exacta.</small></div>';
+    });
+  </script>
+
+  <script src="./app.js"></script>
 </body>
 </html>
