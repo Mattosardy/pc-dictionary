@@ -303,6 +303,7 @@ function renderFB(id){
 /* --------- Búsqueda simple --------- */
 Q.addEventListener('input', ()=>{
   const q = Q.value.trim().toLowerCase();
+  if(q) trackQuery(q);
   if(!q){ route(); return; }
   const results = (DB.entries||[]).filter(e=>{
     const tools = (e.herramientas||[]).map(h=>h.nombre).join(' ');
