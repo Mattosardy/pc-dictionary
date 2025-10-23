@@ -81,6 +81,15 @@ function getTopQueries(n=5){
   }catch(_){ return []; }
 }
 
+function getRecentEntries(n=6){
+  try{
+    const ids = JSON.parse(localStorage.getItem('t3_recent') || '[]').slice(0,n);
+    const map = new Map((DB.entries||[]).map(e=>[e.id,e]));
+    return ids.map(id=>map.get(id)).filter(Boolean);
+  }catch(_){ return []; }
+}
+
+
 /* --------- Validador de datos --------- */
 function validateDB(){
   const errs = [];
@@ -117,34 +126,94 @@ function renderHome(){
 
   const depts        = (DB.departments||[]);
   const totalEntries = (DB.entries||[]).length;
+  const recents      = getRecentEntries(6);
+  const hotQueries   = [...new Set([...getTopQueries(6), ...CHIPS])].slice(0,10);
+
+  const adminBar = ADMIN.unlocked ? `
+    <div class="toolbar">
+      <span class="kpi" style="border-color:#0f7a44"><small>Estado</small><b>Modo Admin</b></span>
+      <a class="btn" href="#" onclick="openAdminPanel();return false">⚙️ Panel Admin</a>
+      <a class="btn" href="#" onclick="exportZipOffline();return false">🗂️ Descargar ZIP</a>
+      <a class="btn-ghost" href="#" onclick="logoutAdmin();return false">Salir</a>
+    </div>` : ``;
 
   const hero = `
     <div class="hero">
-      <h1>Diccionario de Reparación — <span style="color:#2bb673">TelecomT3</span></h1>
-      <div class="kpis">
-        <div class="kpi"><b>${depts.length}</b> departamentos</div>
-        <div class="kpi"><b>${totalEntries}</b> playbooks</div>
-        <div class="kpi"><b>Offline</b> ready</div>
-      </div>
-      <div class="chips">
-        ${[...new Set([...getTopQueries(5), ...CHIPS])].slice(0,10)
-            .map(c=>`<span class="chip" onclick="setQuery('${c}')">#${c}</span>`).join('')}
-      </div>
-
-      ${ADMIN.unlocked ? `
-        <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-          <span class="kpi" style="border-color:#0f7a44">Modo Admin ✅</span>
-          <a class="btn" href="#" onclick="exportZipOffline();return false">🗂️ Descargar ZIP (offline)</a>
-          <a class="btn" href="#" onclick="openAdminPanel();return false">⚙️ Panel Admin</a>
-          <a class="btn" href="#" onclick="logoutAdmin();return false">Salir</a>
+      <div class="hero-top">
+        <div class="hero-title">
+          <span class="badge">🛠️</span>
+          <div>
+            <h1>Diccionario de Reparación — <span style="color:#2bb673">TelecomT3</span></h1>
+            <div class="kpis">
+              <div class="kpi"><small>Departamentos</small><b>${depts.length}</b></div>
+              <div class="kpi"><small>Playbooks</small><b>${totalEntries}</b></div>
+              <div class="kpi"><small>Estado</small><b>Offline-ready</b></div>
+            </div>
+          </div>
         </div>
-      ` : ``}
-    </div>
-    <div class="card" style="margin:12px 0">
-      <div style="margin-bottom:6px"><b>Accesos rápidos</b></div>
-      <div class="tools">${QUICK.map(q=>`<a class="tool-btn" href="#entry/${q.id}">${q.label}</a>`).join('')}</div>
+        <div style="min-width:220px; text-align:right">
+          <div class="chips">
+            ${hotQueries.map(c=>`<span class="chip" onclick="setQuery('${c}')">#${c}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+      ${adminBar}
     </div>
   `;
+
+  const quick = `
+    <div class="section">
+      <h3>Accesos rápidos</h3>
+      <div class="tools">
+        ${QUICK.map(q=>`<a class="tool-btn" href="#entry/${q.id}">${q.label}</a>`).join('')}
+      </div>
+    </div>
+  `;
+
+  const recentBlock = recents.length ? `
+    <div class="section">
+      <h3>Vistos recientemente</h3>
+      <div class="list-compact">
+        ${recents.map(e=>`
+          <div class="item-compact">
+            <div><b>${e.problema}</b><br><small>${e.departamento} · ${e.nivel} · ${e.riesgo}</small></div>
+            <a class="btn" href="#entry/${e.id}">Ver</a>
+          </div>`).join('')}
+      </div>
+    </div>` : ``;
+
+  const deptsGrid = `
+    <div class="section">
+      <h3>Departamentos</h3>
+      <div class="grid-depts">
+        ${depts.map(d=>`
+          <div class="card-dept">
+            <div class="left">
+              <span class="badge">${(DB.meta?.iconos?.[d.id]) || (ICONS[d.id]||'📦')}</span>
+              <div>
+                <div style="font-weight:700">${d.nombre}</div>
+                <small>${(DB.entries||[]).filter(e=>e.departamento_id===d.id).length} casos</small>
+              </div>
+            </div>
+            <a class="btn" href="#dept/${d.id}">Abrir</a>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  const footer = `
+    <div class="footer-muted">
+      v${DB.meta?.version || '1.0'} · ${DB.meta?.nombre || 'PC Dictionary'} ·
+      <a href="#faq" class="btn-ghost" style="margin-left:6px">FAQ</a>
+    </div>
+  `;
+
+  V.innerHTML = hero + quick + recentBlock + deptsGrid + footer + (depts.length ? '' : `
+    <div class="card" style="margin:16px">
+      <b>Sin departamentos.</b><br>Verifica que <code>data.bundle.js</code> cargue correctamente antes de <code>app.js</code>.
+    </div>`);
+}
+
 
   const cards = depts.map(d=>`
     <div class="card">
