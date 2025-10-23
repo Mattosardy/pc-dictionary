@@ -606,6 +606,17 @@ window.addEventListener('keydown',(e)=>{
     const p = document.getElementById('admin-panel');
     if(p){ closeAdminPanel(); }
   }
+window.addEventListener('load', ()=> ensureDBThen(()=>{
+  try { validateDB(); route(); }
+  catch(err){
+    const V = document.getElementById('view');
+    V.innerHTML = '<div class="card"><b>Error al renderizar:</b><br><pre>'
+      + (err && err.stack ? err.stack : String(err))
+      + '</pre></div>';
+  }
+}));
+
+  
 });
 
 /* --------- Listeners --------- */
