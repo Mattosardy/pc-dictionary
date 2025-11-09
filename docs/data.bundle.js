@@ -212,8 +212,14 @@ window.DB = {
     "Recovery de BIOS (Ctrl+Esc con pendrive FAT32).",
     "Limpieza de conectores de video y test por HDMI externo."
   ],
+  "solucion":[
+    "Hacer EC reset: sin batería/CMOS, mantener power 60 s y esperar 10 min.",
+    "Reintentar recovery BIOS con pendrive FAT32 del modelo exacto.",
+    "Si persiste: reprogramar BIOS/EC con programador SPI.",
+    "Diagnóstico de placa: medir líneas 3.3V/5V y fases Vcore.",
+    "Si confirma fallo: reparación BGA o reemplazo de PCH/EC."
+  ],
   "resultado":"Secuencia POST avanza hasta error 3-1 (Embedded Controller / PCH). BIOS responde pero no completa POST; probable daño físico en chipset o firmware del EC.",
-  "solucion":"EC reset (sin batería/CMOS, 60s power). Reintentar recovery BIOS. Si persiste: reprogramar BIOS/EC con SPI o reparar placa (PCH/EC).",
   "herramientas":["Pendrive FAT32","Alcohol isopropílico","Multímetro","Pinza plástica","Programador SPI (CH341A o similar)"],
   "os":"Windows",
   "tags":["Dell","Laptop","Sin imagen","Códigos LED","BIOS recovery","EC","Chipset","Video"],
@@ -221,6 +227,7 @@ window.DB = {
   "riesgo":"Medio",
   "tiempo_min":30
 },
+
     
 /* === PSU === */
 {
