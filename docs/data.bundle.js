@@ -9,8 +9,7 @@ window.DB = {
     {"id":"cooling","nombre":"Refrigeración"},
     {"id":"network","nombre":"Red y Conectividad"},
     {"id":"os","nombre":"Sistema Operativo"},
-    {"id":"security","nombre":"Seguridad y Backups"}
-    { name: "Hardware / Motherboard", icon: "💻" },
+    {"id":"security","nombre":"Seguridad y Backups"},
 
   ],
   "entries": [
