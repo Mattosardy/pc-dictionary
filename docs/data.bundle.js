@@ -194,7 +194,7 @@ window.DB = {
 },
 
 {
-  {
+
   id: "dell-inspiron-15-5000-sin-imagen",
   departamento: "motherboard",
   nivel: "Alto",
