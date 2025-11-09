@@ -10,6 +10,8 @@ window.DB = {
     {"id":"network","nombre":"Red y Conectividad"},
     {"id":"os","nombre":"Sistema Operativo"},
     {"id":"security","nombre":"Seguridad y Backups"}
+    { name: "Hardware / Motherboard", icon: "💻" },
+
   ],
   "entries": [
 
@@ -193,30 +195,31 @@ window.DB = {
 },
 
 {
+  {
   id: "dell-inspiron-15-5000-sin-imagen",
-  departamento: "Hardware / Motherboard",
+  departamento: "motherboard",
   nivel: "Alto",
   riesgo: "Medio",
   problema: "Dell Inspiron 15 5000 enciende, gira el cooler, se apaga y no da imagen",
-  causa: "Corrupción de BIOS, error en GPU o controlador embebido (EC/PCH) según código de luces.",
+  causa: "Corrupción de BIOS, error de video o fallo del EC/PCH según código de luces.",
   sintomas: [
-    "Al encender, luz de Caps Lock fija, ventiladores giran rápido y se apaga sin dar video.",
-    "Tras limpiar RAM, aparece parpadeo 3 naranja + 4 blanco (error de memoria).",
-    "Luego, parpadeo 3 blanco + 3 naranja (error de video).",
-    "Finalmente, 3 naranja + 1 blanco (fallo en EC o chipset)."
+    "Backlight prende pero sin logo ni imagen.",
+    "Tras recovery BIOS: 3 ámbar + 4 blanco (memoria).",
+    "Luego: 3 blanco + 3 ámbar (video).",
+    "Luego: 3 ámbar + 1 blanco (EC/PCH)."
   ],
   pruebas: [
-    "Se retira batería y pila CMOS.",
-    "Se prueba sin discos ni memorias externas.",
-    "Se limpia contactos de RAM y se testea por módulos y ranuras.",
-    "Se realiza recovery de BIOS con Ctrl + Esc y pendrive FAT32.",
-    "Se limpian conectores de video y se verifica en HDMI externo."
+    "Desconectar batería principal y pila CMOS.",
+    "Probar sin discos ni módulos extra de RAM.",
+    "Limpieza de contactos de RAM y prueba por ranura/módulo.",
+    "Recovery de BIOS (Ctrl+Esc con pendrive FAT32).",
+    "Limpieza de conectores de video y test por HDMI externo."
   ],
-  resultado: "La secuencia de diagnóstico avanza hasta error 3-1 (Embedded Controller / PCH). BIOS responde pero el sistema no completa POST, indicando posible daño físico en chipset o firmware EC.",
-  solucion: "Intentar EC reset (sin batería, sin CMOS, presionar 60s power). Si persiste, regrabar BIOS completo o reemplazar chip PCH/EC en placa. Posible reparación con reballing.",
-  herramientas: ["Pendrive FAT32", "Alcohol isopropílico", "Multímetro digital", "Pinza plástica", "Programador SPI (CH341A o similar)"],
-  os: "🪟",
-  tags: ["Dell", "Laptop", "Sin imagen", "Código de luces", "BIOS recovery", "EC", "Chipset", "Video error"]
+  resultado: "Secuencia POST avanza hasta error 3-1 (Embedded Controller / PCH). BIOS responde pero no completa POST; probable daño físico en chipset o firmware del EC.",
+  solucion: "EC reset (sin batería/CMOS, 60s power). Reintentar recovery BIOS. Si persiste: reprogramar BIOS/EC con SPI o reparar placa (PCH/EC).",
+  herramientas: ["Pendrive FAT32", "Alcohol isopropílico", "Multímetro", "Pinza plástica", "Programador SPI (CH341A o similar)"],
+  os: "Windows",
+  tags: ["Dell","Laptop","Sin imagen","Códigos LED","BIOS recovery","EC","Chipset","Video"]
 },
     
 /* === PSU === */
