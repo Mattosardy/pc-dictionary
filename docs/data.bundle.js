@@ -214,6 +214,7 @@ window.DB = {
   ],
   "solucion":[
     "Hacer EC reset: sin batería/CMOS, mantener power 60 s y esperar 10 min.",
+    "Un pendrive FAT32 limpio, El archivo BIOS original renombrado correctamente (según el modelo exacto),Manteniendo Ctrl + Esc hasta que parpadee y esperar unos minutos aunque no muestre imagen,"
     "Reintentar recovery BIOS con pendrive FAT32 del modelo exacto.",
     "Si persiste: reprogramar BIOS/EC con programador SPI.",
     "Diagnóstico de placa: medir líneas 3.3V/5V y fases Vcore.",
