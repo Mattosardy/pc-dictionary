@@ -192,6 +192,33 @@ window.DB = {
   "tags":["bios","fast boot","legacy usb","csm"]
 },
 
+{
+  id: "dell-inspiron-15-5000-sin-imagen",
+  departamento: "Hardware / Motherboard",
+  nivel: "Alto",
+  riesgo: "Medio",
+  problema: "Dell Inspiron 15 5000 enciende, gira el cooler, se apaga y no da imagen",
+  causa: "Corrupción de BIOS, error en GPU o controlador embebido (EC/PCH) según código de luces.",
+  sintomas: [
+    "Al encender, luz de Caps Lock fija, ventiladores giran rápido y se apaga sin dar video.",
+    "Tras limpiar RAM, aparece parpadeo 3 naranja + 4 blanco (error de memoria).",
+    "Luego, parpadeo 3 blanco + 3 naranja (error de video).",
+    "Finalmente, 3 naranja + 1 blanco (fallo en EC o chipset)."
+  ],
+  pruebas: [
+    "Se retira batería y pila CMOS.",
+    "Se prueba sin discos ni memorias externas.",
+    "Se limpia contactos de RAM y se testea por módulos y ranuras.",
+    "Se realiza recovery de BIOS con Ctrl + Esc y pendrive FAT32.",
+    "Se limpian conectores de video y se verifica en HDMI externo."
+  ],
+  resultado: "La secuencia de diagnóstico avanza hasta error 3-1 (Embedded Controller / PCH). BIOS responde pero el sistema no completa POST, indicando posible daño físico en chipset o firmware EC.",
+  solucion: "Intentar EC reset (sin batería, sin CMOS, presionar 60s power). Si persiste, regrabar BIOS completo o reemplazar chip PCH/EC en placa. Posible reparación con reballing.",
+  herramientas: ["Pendrive FAT32", "Alcohol isopropílico", "Multímetro digital", "Pinza plástica", "Programador SPI (CH341A o similar)"],
+  os: "🪟",
+  tags: ["Dell", "Laptop", "Sin imagen", "Código de luces", "BIOS recovery", "EC", "Chipset", "Video error"]
+},
+    
 /* === PSU === */
 {
   "id":"psu-cables-sueltos-8pin-cpu",
