@@ -194,31 +194,32 @@ window.DB = {
 },
 
 {
-
-  id: "dell-inspiron-15-5000-sin-imagen",
-  departamento: "motherboard",
-  nivel: "Alto",
-  riesgo: "Medio",
-  problema: "Dell Inspiron 15 5000 enciende, gira el cooler, se apaga y no da imagen",
-  causa: "Corrupción de BIOS, error de video o fallo del EC/PCH según código de luces.",
-  sintomas: [
+  "id":"dell-inspiron-15-5000-sin-imagen",
+  "departamento_id":"motherboard",
+  "departamento":"Placa Madre / Chipset",
+  "problema":"Dell Inspiron 15 5000 enciende, gira el cooler, se apaga y no da imagen",
+  "causa":"Corrupción de BIOS, error de video o fallo del EC/PCH según código de luces.",
+  "sintomas":[
     "Backlight prende pero sin logo ni imagen.",
     "Tras recovery BIOS: 3 ámbar + 4 blanco (memoria).",
     "Luego: 3 blanco + 3 ámbar (video).",
     "Luego: 3 ámbar + 1 blanco (EC/PCH)."
   ],
-  pruebas: [
+  "pruebas":[
     "Desconectar batería principal y pila CMOS.",
     "Probar sin discos ni módulos extra de RAM.",
     "Limpieza de contactos de RAM y prueba por ranura/módulo.",
     "Recovery de BIOS (Ctrl+Esc con pendrive FAT32).",
     "Limpieza de conectores de video y test por HDMI externo."
   ],
-  resultado: "Secuencia POST avanza hasta error 3-1 (Embedded Controller / PCH). BIOS responde pero no completa POST; probable daño físico en chipset o firmware del EC.",
-  solucion: "EC reset (sin batería/CMOS, 60s power). Reintentar recovery BIOS. Si persiste: reprogramar BIOS/EC con SPI o reparar placa (PCH/EC).",
-  herramientas: ["Pendrive FAT32", "Alcohol isopropílico", "Multímetro", "Pinza plástica", "Programador SPI (CH341A o similar)"],
-  os: "Windows",
-  tags: ["Dell","Laptop","Sin imagen","Códigos LED","BIOS recovery","EC","Chipset","Video"]
+  "resultado":"Secuencia POST avanza hasta error 3-1 (Embedded Controller / PCH). BIOS responde pero no completa POST; probable daño físico en chipset o firmware del EC.",
+  "solucion":"EC reset (sin batería/CMOS, 60s power). Reintentar recovery BIOS. Si persiste: reprogramar BIOS/EC con SPI o reparar placa (PCH/EC).",
+  "herramientas":["Pendrive FAT32","Alcohol isopropílico","Multímetro","Pinza plástica","Programador SPI (CH341A o similar)"],
+  "os":"Windows",
+  "tags":["Dell","Laptop","Sin imagen","Códigos LED","BIOS recovery","EC","Chipset","Video"],
+  "nivel":"Alto",
+  "riesgo":"Medio",
+  "tiempo_min":30
 },
     
 /* === PSU === */
